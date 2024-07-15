@@ -1,0 +1,752 @@
+Сортировка MG не нужна ?
+Выделение случая ind == 0 не нужно.
+Порядки по xi в M(G),M(X),Q(X) одинаковы! 
+
+(это можно сделать за один проход, так как массив $R$ и список связей упорядочены одинаково):
+(2**iPrev)-1<listLimits[curr][0]<2**(iPrev+1)
+
+Input file:
+*.csv
+For all edjes (x,y):
+<x.vertex>,<y.vertex>[,<y.vertex>...<y.vertex>]
+
+listX[]
+listY[]
+
+MG[x][y] <0 | 1>
+MG -> MGbit[listX[indX_old]: y_bit] -> MGdec[listX[indX_old]: y_dec,indX_old] -> sort on y_dec -> MGdec[indX: y_dec,indX_old] -> 
+listX[indX: listX[indX_old]] 
+
+
+Graph.input() #+
+MG.create(Graph)	#+ MG[x][y] <0 | 1>
+MG.sort_by_GammaX() #+ by GammaX
+MX.create(MG)	#+ = M(G) × M_T(G)
+QX.create(MX) #+ All X in QX with common GammaX are cluster (?)
+Limitation:=(XArrBits,YArrBits)
+rLimitList := List of Limitation	#listR
+EMPTY_EL=-1
+EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
+
+for x,ind in QX:
+	
+	if ind == 0:
+		rLimitList.add_x_connection(x,binMG)
+		continue
+	else:
+		xPrevConnections = get_sorted_prev_connections(x,QX,binMG)
+		xPrevLimitList = rLimitList.get_limits(xPrevConnections)
+		
+		rLimitList.add_x_connection(x,binMG)
+		
+		xPrevLimitList.add_xy_bits(x,binMG)
+		rLimitList.add(PrevxLimitList)
+			#rLimitList.check_previous_Y(x,MG)
+
+rLimitList.output()
+
+-----------------
+int2BinStr
+print_list_xy
+	int2BinStr
+graph_input
+check_list
+gen_edjes
+	check_list
+sort_y_matrG
+xbit
+np.dot
+np.minimum
+get_x_connection
+get_sorted_prev_connections
+get_prev_connected_limits
+add_xy_bits_to_prev
+check_dupl_y_in_prev
+check_prev_y_in_limits
+create_limits
+	get_x_connection
+		xbit
+	get_sorted_prev_connections
+	get_prev_connected_limits
+		print_list_xy
+	get_x_connection
+	add_xy_bits_to_prev
+		xbit
+		print_list_xy
+	check_dupl_y_in_prev
+		print_list_xy
+	check_prev_y_in_limits
+		print_list_xy
+	print_list_xy
+#!print_limits
+
+-------------------------------
+[Running] python -u "d:\Develop0\TestTeX\TransportNet\BuildConstrains.py"
+16:08
+graph11.csv
+row ['4', '1', '2', '3', '4']
+row ['1', '1']
+row ['3', '1', '2', '3']
+row ['2', '1', '2']
+row []
+row []
+graph: {'4': ['1', '2', '3', '4'], '1': ['1'], '3': ['1', '2', '3'], '2': ['1', '2']}
+lX: 4 ['4', '1', '3', '2']
+lY: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 1, 1], [1, 0, 0, 0], [1, 1, 1, 0], [1, 1, 0, 0]]
+binMG: [(1, 1), (3, 3), (7, 2), (15, 0)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 1, 1]]
+npMX: [[1 1 1 1]
+ [1 2 2 2]
+ [1 2 3 3]
+ [1 2 3 4]]
+npQX: [[1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]]
+
+[Done] exited with code=0 in 12.075 seconds
+--------------------------
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+19:36
+graph11.csv
+graph: {'4': ['1', '2', '3', '4'], '1': ['1'], '3': ['1', '2', '3'], '2': ['1', '2']}
+lX: 4 ['4', '1', '3', '2']
+lY: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 1, 1], [1, 0, 0, 0], [1, 1, 1, 0], [1, 1, 0, 0]]
+after sort_y_matrG
+binMG: [(1, 1), (3, 3), (7, 2), (15, 0)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 1, 1]]
+after np.dot
+npMX: [[1 1 1 1]
+ [1 2 2 2]
+ [1 2 3 3]
+ [1 2 3 4]]
+npQX: [[1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]]
+check_dupl_y
+xPrevLimitList-s: [(3, 3)]
+xPrevLimitList-e: [(3, 3)]
+xPrevLimitList-f: [(3, 3)]
+check_previous_y
+listLimits-s: [(1, 1), (2, 3)]
+xPrevLimitList: [(3, 3)]
+listLimits-e: [(1, 1), (-1, -1)]
+listLimits-f: [(1, 1)]
+after extend listLimits: [(1, 1), (3, 3)]
+check_dupl_y
+xPrevLimitList-s: [(5, 7), (7, 7)]
+xPrevLimitList-e: [(-1, -1), (7, 7)]
+xPrevLimitList-f: [(7, 7)]
+check_previous_y
+listLimits-s: [(1, 1), (3, 3), (4, 7)]
+xPrevLimitList: [(7, 7)]
+listLimits-e: [(1, 1), (3, 3), (-1, -1)]
+listLimits-f: [(1, 1), (3, 3)]
+after extend listLimits: [(1, 1), (3, 3), (7, 7)]
+check_dupl_y
+xPrevLimitList-s: [(9, 15), (11, 15), (15, 15)]
+xPrevLimitList-e: [(-1, -1), (-1, -1), (15, 15)]
+xPrevLimitList-f: [(15, 15)]
+check_previous_y
+listLimits-s: [(1, 1), (3, 3), (7, 7), (8, 15)]
+xPrevLimitList: [(15, 15)]
+listLimits-e: [(1, 1), (3, 3), (7, 7), (-1, -1)]
+listLimits-f: [(1, 1), (3, 3), (7, 7)]
+after extend listLimits: [(1, 1), (3, 3), (7, 7), (15, 15)]
+listR: [(1, 1), (3, 3), (7, 7), (15, 15)]
+
+Process finished with exit code 0
+
+--
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+14:28
+graph11.csv
+ after graph_input
+graph: {'4': ['1', '2', '3', '4'], '1': ['1'], '3': ['1', '2', '3'], '2': ['1', '2']}
+lX: 4 ['4', '1', '3', '2']
+lY: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 1, 1], [1, 0, 0, 0], [1, 1, 1, 0], [1, 1, 0, 0]]
+ after sort_y_matrG
+binMG: [(1, 1), (3, 3), (7, 2), (15, 0)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 1, 1]]
+ after np.dot
+npMX: [[1 1 1 1]
+ [1 2 2 2]
+ [1 2 3 3]
+ [1 2 3 4]]
+npQX: [[1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]]
+ create_limits
+ x,y current: 1 1
+ get_sorted_prev_connections
+npQX[1] [1 1 1 1]
+indx,prev_connections 1 [(1, 1)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 1)]
+                   [('1', '1')]
+listLimits: [(1, 1)]
+           [('1', '1')]
+i,xPrev: 0 1
+prev_limits: [(1, 1)]
+            [('1', '1')]
+ x,y current: 10 11
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 1)]
+                 [('1', '1')]
+x,y: 10 11
+xPrevLimitList-f: [(3, 3)]
+                 [('11', '11')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(3, 3)]
+                 [('11', '11')]
+xPrevLimitList-e: [(3, 3)]
+                 [('11', '11')]
+xPrevLimitList-f: [(3, 3)]
+                 [('11', '11')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 1), (2, 3)]
+             [('1', '1'), ('10', '11')]
+xPrevLimitList: [(3, 3)]
+               [('11', '11')]
+listLimits-e: [(1, 1), (-1, -1)]
+             [('1', '1'), ('b1', 'b1')]
+listLimits-f: [(1, 1)]
+             [('1', '1')]
+after extend listLimits: [(1, 1), (3, 3)]
+                        [('1', '1'), ('11', '11')]
+ get_sorted_prev_connections
+npQX[2] [1 1 1 1]
+indx,prev_connections 2 [(1, 1), (2, 3)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 1), (2, 3)]
+                   [('1', '1'), ('10', '11')]
+listLimits: [(1, 1), (3, 3)]
+           [('1', '1'), ('11', '11')]
+i,xPrev: 0 1
+i,xPrev: 1 2
+prev_limits: [(1, 1), (3, 3), (3, 3)]
+            [('1', '1'), ('11', '11'), ('11', '11')]
+ x,y current: 100 111
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 1), (3, 3), (3, 3)]
+                 [('1', '1'), ('11', '11'), ('11', '11')]
+x,y: 100 111
+xPrevLimitList-f: [(5, 7), (7, 7), (7, 7)]
+                 [('101', '111'), ('111', '111'), ('111', '111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(5, 7), (7, 7), (7, 7)]
+                 [('101', '111'), ('111', '111'), ('111', '111')]
+xPrevLimitList-e: [(-1, -1), (-1, -1), (7, 7)]
+                 [('b1', 'b1'), ('b1', 'b1'), ('111', '111')]
+xPrevLimitList-f: [(7, 7)]
+                 [('111', '111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 1), (3, 3), (4, 7)]
+             [('1', '1'), ('11', '11'), ('100', '111')]
+xPrevLimitList: [(7, 7)]
+               [('111', '111')]
+listLimits-e: [(1, 1), (3, 3), (-1, -1)]
+             [('1', '1'), ('11', '11'), ('b1', 'b1')]
+listLimits-f: [(1, 1), (3, 3)]
+             [('1', '1'), ('11', '11')]
+after extend listLimits: [(1, 1), (3, 3), (7, 7)]
+                        [('1', '1'), ('11', '11'), ('111', '111')]
+ get_sorted_prev_connections
+npQX[3] [1 1 1 1]
+indx,prev_connections 3 [(1, 1), (2, 3), (4, 7)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 1), (2, 3), (4, 7)]
+                   [('1', '1'), ('10', '11'), ('100', '111')]
+listLimits: [(1, 1), (3, 3), (7, 7)]
+           [('1', '1'), ('11', '11'), ('111', '111')]
+i,xPrev: 0 1
+i,xPrev: 1 2
+i,xPrev: 2 4
+prev_limits: [(1, 1), (3, 3), (7, 7), (3, 3), (7, 7), (7, 7)]
+            [('1', '1'), ('11', '11'), ('111', '111'), ('11', '11'), ('111', '111'), ('111', '111')]
+ x,y current: 1000 1111
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 1), (3, 3), (7, 7), (3, 3), (7, 7), (7, 7)]
+                 [('1', '1'), ('11', '11'), ('111', '111'), ('11', '11'), ('111', '111'), ('111', '111')]
+x,y: 1000 1111
+xPrevLimitList-f: [(9, 15), (11, 15), (15, 15), (11, 15), (15, 15), (15, 15)]
+                 [('1001', '1111'), ('1011', '1111'), ('1111', '1111'), ('1011', '1111'), ('1111', '1111'), ('1111', '1111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(9, 15), (11, 15), (15, 15), (11, 15), (15, 15), (15, 15)]
+                 [('1001', '1111'), ('1011', '1111'), ('1111', '1111'), ('1011', '1111'), ('1111', '1111'), ('1111', '1111')]
+xPrevLimitList-e: [(-1, -1), (-1, -1), (-1, -1), (-1, -1), (-1, -1), (15, 15)]
+                 [('b1', 'b1'), ('b1', 'b1'), ('b1', 'b1'), ('b1', 'b1'), ('b1', 'b1'), ('1111', '1111')]
+xPrevLimitList-f: [(15, 15)]
+                 [('1111', '1111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 1), (3, 3), (7, 7), (8, 15)]
+             [('1', '1'), ('11', '11'), ('111', '111'), ('1000', '1111')]
+xPrevLimitList: [(15, 15)]
+               [('1111', '1111')]
+listLimits-e: [(1, 1), (3, 3), (7, 7), (-1, -1)]
+             [('1', '1'), ('11', '11'), ('111', '111'), ('b1', 'b1')]
+listLimits-f: [(1, 1), (3, 3), (7, 7)]
+             [('1', '1'), ('11', '11'), ('111', '111')]
+after extend listLimits: [(1, 1), (3, 3), (7, 7), (15, 15)]
+                        [('1', '1'), ('11', '11'), ('111', '111'), ('1111', '1111')]
+listR: [(1, 1), (3, 3), (7, 7), (15, 15)]
+      [('1', '1'), ('11', '11'), ('111', '111'), ('1111', '1111')]
+
+Process finished with exit code 0
+
+--------------------------------
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+21:21
+graph0.csv
+graph: {'1': ['1'], '2': ['2'], '3': ['3'], '4': ['4']}
+lX: 4 ['1', '2', '3', '4']
+lY: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+after sort_y_matrG
+binMG: [(1, 0), (2, 1), (4, 2), (8, 3)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+after np.dot
+npMX: [[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1 0]
+ [0 0 0 1]]
+npQX: [[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1 0]
+ [0 0 0 1]]
+listR: [(1, 1), (2, 2), (4, 4), (8, 8)]
+
+Process finished with exit code 0
+
+--
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+14:26
+graph0.csv
+ after graph_input
+graph: {'1': ['1'], '2': ['2'], '3': ['3'], '4': ['4']}
+lX: 4 ['1', '2', '3', '4']
+lY: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+ after sort_y_matrG
+binMG: [(1, 0), (2, 1), (4, 2), (8, 3)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+ after np.dot
+npMX: [[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1 0]
+ [0 0 0 1]]
+npQX: [[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1 0]
+ [0 0 0 1]]
+ create_limits
+ x,y current: 1 1
+ get_sorted_prev_connections
+npQX[1] [0 1 0 0]
+indx,prev_connections 1 []
+ x,y current: 10 10
+ get_sorted_prev_connections
+npQX[2] [0 0 1 0]
+indx,prev_connections 2 []
+ x,y current: 100 100
+ get_sorted_prev_connections
+npQX[3] [0 0 0 1]
+indx,prev_connections 3 []
+ x,y current: 1000 1000
+listR: [(1, 1), (2, 2), (4, 4), (8, 8)]
+      [('1', '1'), ('10', '10'), ('100', '100'), ('1000', '1000')]
+
+Process finished with exit code 0
+
+
+-----------------------
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+14:15
+graph2.csv
+ after graph_input
+graph: {'1': ['1', '2'], '2': ['2', '3'], '3': ['3', '4'], '4': ['4', '5']}
+lX: 4 ['1', '2', '3', '4']
+lY: 5 ['1', '2', '3', '4', '5']
+matrG: [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 1, 1]]
+ after sort_y_matrG
+binMG: [(3, 0), (6, 1), (12, 2), (24, 3)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 1, 1]]
+ after np.dot
+npMX: [[2 1 0 0]
+ [1 2 1 0]
+ [0 1 2 1]
+ [0 0 1 2]]
+npQX: [[1 1 0 0]
+ [1 1 1 0]
+ [0 1 1 1]
+ [0 0 1 1]]
+ create_limits
+x,y current: 1 11
+ get_sorted_prev_connections
+npQX[1] [1 1 1 0]
+indx,prev_connections 1 [(1, 3)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 3)]
+                   [('1', '11')]
+listLimits: [(1, 3)]
+           [('1', '11')]
+i,xPrev: 0 1
+prev_limits: [(1, 3)]
+            [('1', '11')]
+x,y current: 10 110
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 3)]
+                 [('1', '11')]
+x,y: 10 110
+xPrevLimitList-f: [(3, 7)]
+                 [('11', '111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(3, 7)]
+                 [('11', '111')]
+xPrevLimitList-e: [(3, 7)]
+                 [('11', '111')]
+xPrevLimitList-f: [(3, 7)]
+                 [('11', '111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 6)]
+             [('1', '11'), ('10', '110')]
+xPrevLimitList: [(3, 7)]
+               [('11', '111')]
+listLimits-e: [(1, 3), (2, 6)]
+             [('1', '11'), ('10', '110')]
+listLimits-f: [(1, 3), (2, 6)]
+             [('1', '11'), ('10', '110')]
+after extend listLimits: [(1, 3), (2, 6), (3, 7)]
+                        [('1', '11'), ('10', '110'), ('11', '111')]
+ get_sorted_prev_connections
+npQX[2] [0 1 1 1]
+indx,prev_connections 2 [(2, 6)]
+ get_prev_connected_limits
+xPrevConnections-s: [(2, 6)]
+                   [('10', '110')]
+listLimits: [(1, 3), (2, 6), (3, 7)]
+           [('1', '11'), ('10', '110'), ('11', '111')]
+i,xPrev: 0 2
+prev_limits: [(2, 6), (3, 7)]
+            [('10', '110'), ('11', '111')]
+x,y current: 100 1100
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(2, 6), (3, 7)]
+                 [('10', '110'), ('11', '111')]
+x,y: 100 1100
+xPrevLimitList-f: [(6, 14), (7, 15)]
+                 [('110', '1110'), ('111', '1111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(6, 14), (7, 15)]
+                 [('110', '1110'), ('111', '1111')]
+xPrevLimitList-e: [(6, 14), (7, 15)]
+                 [('110', '1110'), ('111', '1111')]
+xPrevLimitList-f: [(6, 14), (7, 15)]
+                 [('110', '1110'), ('111', '1111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 6), (3, 7), (4, 12)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100')]
+xPrevLimitList: [(6, 14), (7, 15)]
+               [('110', '1110'), ('111', '1111')]
+listLimits-e: [(1, 3), (2, 6), (3, 7), (4, 12)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100')]
+listLimits-f: [(1, 3), (2, 6), (3, 7), (4, 12)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100')]
+after extend listLimits: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15)]
+                        [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111')]
+ get_sorted_prev_connections
+npQX[3] [0 0 1 1]
+indx,prev_connections 3 [(4, 12)]
+ get_prev_connected_limits
+xPrevConnections-s: [(4, 12)]
+                   [('100', '1100')]
+listLimits: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15)]
+           [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111')]
+i,xPrev: 0 4
+prev_limits: [(4, 12), (6, 14), (7, 15)]
+            [('100', '1100'), ('110', '1110'), ('111', '1111')]
+x,y current: 1000 11000
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(4, 12), (6, 14), (7, 15)]
+                 [('100', '1100'), ('110', '1110'), ('111', '1111')]
+x,y: 1000 11000
+xPrevLimitList-f: [(12, 28), (14, 30), (15, 31)]
+                 [('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(12, 28), (14, 30), (15, 31)]
+                 [('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+xPrevLimitList-e: [(12, 28), (14, 30), (15, 31)]
+                 [('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+xPrevLimitList-f: [(12, 28), (14, 30), (15, 31)]
+                 [('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15), (8, 24)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111'), ('1000', '11000')]
+xPrevLimitList: [(12, 28), (14, 30), (15, 31)]
+               [('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+listLimits-e: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15), (8, 24)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111'), ('1000', '11000')]
+listLimits-f: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15), (8, 24)]
+             [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111'), ('1000', '11000')]
+after extend listLimits: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15), (8, 24), (12, 28), (14, 30), (15, 31)]
+                        [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111'), ('1000', '11000'), ('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+listR: [(1, 3), (2, 6), (3, 7), (4, 12), (6, 14), (7, 15), (8, 24), (12, 28), (14, 30), (15, 31)]
+      [('1', '11'), ('10', '110'), ('11', '111'), ('100', '1100'), ('110', '1110'), ('111', '1111'), ('1000', '11000'), ('1100', '11100'), ('1110', '11110'), ('1111', '11111')]
+
+Process finished with exit code 0
+
+------------------------
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+12:47
+graph3.csv
+graph: {'1': ['0', '1'], '2': ['0', '2'], '3': ['0', '3'], '4': ['0', '4']}
+lX: 4 ['1', '2', '3', '4']
+lY: 5 ['0', '1', '2', '3', '4']
+matrG: [[1, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 0, 0, 1]]
+after sort_y_matrG
+binMG: [(3, 0), (5, 1), (9, 2), (17, 3)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 0, 0, 1]]
+after np.dot
+npMX: [[2 1 1 1]
+ [1 2 1 1]
+ [1 1 2 1]
+ [1 1 1 2]]
+npQX: [[1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]]
+npQX[1] [1 1 1 1]
+indx,prev_connections: 1 [(1, 3), (2, 5), (4, 9), (8, 17)]
+check_dupl_y
+xPrevLimitList-s: [(3, 7)]
+xPrevLimitList-e: [(3, 7)]
+xPrevLimitList-f: [(3, 7)]
+check_previous_y
+listLimits-s: [(1, 3), (2, 5)]
+xPrevLimitList: [(3, 7)]
+listLimits-e: [(1, 3), (2, 5)]
+listLimits-f: [(1, 3), (2, 5)]
+after extend listLimits: [(1, 3), (2, 5), (3, 7)]
+npQX[2] [1 1 1 1]
+indx,prev_connections: 2 [(1, 3), (2, 5), (4, 9), (8, 17)]
+check_dupl_y
+xPrevLimitList-s: [(5, 11), (6, 13), (7, 15)]
+xPrevLimitList-e: [(5, 11), (6, 13), (7, 15)]
+xPrevLimitList-f: [(5, 11), (6, 13), (7, 15)]
+check_previous_y
+listLimits-s: [(1, 3), (2, 5), (3, 7), (4, 9)]
+xPrevLimitList: [(5, 11), (6, 13), (7, 15)]
+listLimits-e: [(1, 3), (2, 5), (3, 7), (4, 9)]
+listLimits-f: [(1, 3), (2, 5), (3, 7), (4, 9)]
+after extend listLimits: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15)]
+npQX[3] [1 1 1 1]
+indx,prev_connections: 3 [(1, 3), (2, 5), (4, 9), (8, 17)]
+check_dupl_y
+xPrevLimitList-s: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+xPrevLimitList-e: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+xPrevLimitList-f: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+check_previous_y
+listLimits-s: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+xPrevLimitList: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+listLimits-e: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+listLimits-f: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+after extend listLimits: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17), (9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+listR: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17), (9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+
+Process finished with exit code 0
+
+--
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py 
+14:30
+graph3.csv
+ after graph_input
+graph: {'1': ['0', '1'], '2': ['0', '2'], '3': ['0', '3'], '4': ['0', '4']}
+lX: 4 ['1', '2', '3', '4']
+lY: 5 ['0', '1', '2', '3', '4']
+matrG: [[1, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 0, 0, 1]]
+ after sort_y_matrG
+binMG: [(3, 0), (5, 1), (9, 2), (17, 3)]
+lX: 4 ['1', '2', '3', '4']
+matrG: [[1, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 0, 0, 1]]
+ after np.dot
+npMX: [[2 1 1 1]
+ [1 2 1 1]
+ [1 1 2 1]
+ [1 1 1 2]]
+npQX: [[1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]
+ [1 1 1 1]]
+ create_limits
+ x,y current: 1 11
+ get_sorted_prev_connections
+npQX[1] [1 1 1 1]
+indx,prev_connections 1 [(1, 3)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 3)]
+                   [('1', '11')]
+listLimits: [(1, 3)]
+           [('1', '11')]
+i,xPrev: 0 1
+prev_limits: [(1, 3)]
+            [('1', '11')]
+ x,y current: 10 101
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 3)]
+                 [('1', '11')]
+x,y: 10 101
+xPrevLimitList-f: [(3, 7)]
+                 [('11', '111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(3, 7)]
+                 [('11', '111')]
+xPrevLimitList-e: [(3, 7)]
+                 [('11', '111')]
+xPrevLimitList-f: [(3, 7)]
+                 [('11', '111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 5)]
+             [('1', '11'), ('10', '101')]
+xPrevLimitList: [(3, 7)]
+               [('11', '111')]
+listLimits-e: [(1, 3), (2, 5)]
+             [('1', '11'), ('10', '101')]
+listLimits-f: [(1, 3), (2, 5)]
+             [('1', '11'), ('10', '101')]
+after extend listLimits: [(1, 3), (2, 5), (3, 7)]
+                        [('1', '11'), ('10', '101'), ('11', '111')]
+ get_sorted_prev_connections
+npQX[2] [1 1 1 1]
+indx,prev_connections 2 [(1, 3), (2, 5)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 3), (2, 5)]
+                   [('1', '11'), ('10', '101')]
+listLimits: [(1, 3), (2, 5), (3, 7)]
+           [('1', '11'), ('10', '101'), ('11', '111')]
+i,xPrev: 0 1
+i,xPrev: 1 2
+prev_limits: [(1, 3), (3, 7), (2, 5), (3, 7)]
+            [('1', '11'), ('11', '111'), ('10', '101'), ('11', '111')]
+ x,y current: 100 1001
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 3), (3, 7), (2, 5), (3, 7)]
+                 [('1', '11'), ('11', '111'), ('10', '101'), ('11', '111')]
+x,y: 100 1001
+xPrevLimitList-f: [(5, 11), (7, 15), (6, 13), (7, 15)]
+                 [('101', '1011'), ('111', '1111'), ('110', '1101'), ('111', '1111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(5, 11), (7, 15), (6, 13), (7, 15)]
+                 [('101', '1011'), ('111', '1111'), ('110', '1101'), ('111', '1111')]
+xPrevLimitList-e: [(5, 11), (-1, -1), (6, 13), (7, 15)]
+                 [('101', '1011'), ('b1', 'b1'), ('110', '1101'), ('111', '1111')]
+xPrevLimitList-f: [(5, 11), (6, 13), (7, 15)]
+                 [('101', '1011'), ('110', '1101'), ('111', '1111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 5), (3, 7), (4, 9)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001')]
+xPrevLimitList: [(5, 11), (6, 13), (7, 15)]
+               [('101', '1011'), ('110', '1101'), ('111', '1111')]
+listLimits-e: [(1, 3), (2, 5), (3, 7), (4, 9)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001')]
+listLimits-f: [(1, 3), (2, 5), (3, 7), (4, 9)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001')]
+after extend listLimits: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15)]
+                        [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111')]
+ get_sorted_prev_connections
+npQX[3] [1 1 1 1]
+indx,prev_connections 3 [(1, 3), (2, 5), (4, 9)]
+ get_prev_connected_limits
+xPrevConnections-s: [(1, 3), (2, 5), (4, 9)]
+                   [('1', '11'), ('10', '101'), ('100', '1001')]
+listLimits: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15)]
+           [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111')]
+i,xPrev: 0 1
+i,xPrev: 1 2
+i,xPrev: 2 4
+prev_limits: [(1, 3), (3, 7), (5, 11), (7, 15), (2, 5), (3, 7), (6, 13), (7, 15), (4, 9), (5, 11), (6, 13), (7, 15)]
+            [('1', '11'), ('11', '111'), ('101', '1011'), ('111', '1111'), ('10', '101'), ('11', '111'), ('110', '1101'), ('111', '1111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111')]
+ x,y current: 1000 10001
+ add_xy_bits_to_prev
+xPrevLimitList-s: [(1, 3), (3, 7), (5, 11), (7, 15), (2, 5), (3, 7), (6, 13), (7, 15), (4, 9), (5, 11), (6, 13), (7, 15)]
+                 [('1', '11'), ('11', '111'), ('101', '1011'), ('111', '1111'), ('10', '101'), ('11', '111'), ('110', '1101'), ('111', '1111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111')]
+x,y: 1000 10001
+xPrevLimitList-f: [(9, 19), (11, 23), (13, 27), (15, 31), (10, 21), (11, 23), (14, 29), (15, 31), (12, 25), (13, 27), (14, 29), (15, 31)]
+                 [('1001', '10011'), ('1011', '10111'), ('1101', '11011'), ('1111', '11111'), ('1010', '10101'), ('1011', '10111'), ('1110', '11101'), ('1111', '11111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+ check_dupl_y_in_prev
+xPrevLimitList-s: [(9, 19), (11, 23), (13, 27), (15, 31), (10, 21), (11, 23), (14, 29), (15, 31), (12, 25), (13, 27), (14, 29), (15, 31)]
+                 [('1001', '10011'), ('1011', '10111'), ('1101', '11011'), ('1111', '11111'), ('1010', '10101'), ('1011', '10111'), ('1110', '11101'), ('1111', '11111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+xPrevLimitList-e: [(9, 19), (-1, -1), (-1, -1), (-1, -1), (10, 21), (11, 23), (-1, -1), (-1, -1), (12, 25), (13, 27), (14, 29), (15, 31)]
+                 [('1001', '10011'), ('b1', 'b1'), ('b1', 'b1'), ('b1', 'b1'), ('1010', '10101'), ('1011', '10111'), ('b1', 'b1'), ('b1', 'b1'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+xPrevLimitList-f: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+                 [('1001', '10011'), ('1010', '10101'), ('1011', '10111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+ check_prev_y_in_limits
+listLimits-s: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111'), ('1000', '10001')]
+xPrevLimitList: [(9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+               [('1001', '10011'), ('1010', '10101'), ('1011', '10111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+listLimits-e: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111'), ('1000', '10001')]
+listLimits-f: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17)]
+             [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111'), ('1000', '10001')]
+after extend listLimits: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17), (9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+                        [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111'), ('1000', '10001'), ('1001', '10011'), ('1010', '10101'), ('1011', '10111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+listR: [(1, 3), (2, 5), (3, 7), (4, 9), (5, 11), (6, 13), (7, 15), (8, 17), (9, 19), (10, 21), (11, 23), (12, 25), (13, 27), (14, 29), (15, 31)]
+      [('1', '11'), ('10', '101'), ('11', '111'), ('100', '1001'), ('101', '1011'), ('110', '1101'), ('111', '1111'), ('1000', '10001'), ('1001', '10011'), ('1010', '10101'), ('1011', '10111'), ('1100', '11001'), ('1101', '11011'), ('1110', '11101'), ('1111', '11111')]
+
+Process finished with exit code 0
+
+------------------------
+
+python битовые операции
+https://timeweb.cloud/tutorials/python/pobitovye-operatory-python-rukovodstvo
+https://www.guru99.com/ru/python-matrix.html
+https://silvertests.ru/GuideView.aspx?id=34372
+https://www.nic.ru/help/sozdaem-matricu-v-python-poshagovaya-instrukciya_11756.html
+https://timeweb.cloud/tutorials/python/kak-sozdat-matricu
+https://numpy.org/devdocs/user/quickstart.html
+https://sky.pro/wiki/python/rabota-s-matricami-v-python-rukovodstvo-dlya-nachinayushih/
+https://timeweb.com/ru/community/articles/vidy-algoritmov-sortirovki-v-python
+https://skillbox.ru/media/code/sortirovka-dannykh-v-python-chto-nuzhno-znat/
+https://tproger.ru/translations/python-sorting
+https://ru.wikipedia.org/wiki/Timsort
+https://sky.pro/wiki/python/sortirovka-spiska-python-po-dvum-polyam-algoritm-i-resheniya/
+https://docs.python.org/3/howto/sorting.html
+https://informatics.msk.ru/mod/page/view.php?id=38327
+https://proglib.io/p/slozhnost-algoritmov-i-operaciy-na-primere-python-2020-11-03
+https://proproprogs.ru/python_base/python3-argument-key-dlya-sortirovki-kollekciy-po-klyuchu
+https://datastart.ru/blog/read/top-10-bibliotek-python-dlya-data-science
+https://codebra.ru/ru/lessons-python/hellopython/7/5
+https://pythonworld.ru/osnovy/faq.html
+https://pylot.me/article/28-lokalnie-i-globalnie-peremennie-v-python/
+https://codechick.io/tutorials/python/global-local-nonlocal-variables
+https://metanit.com/python/tutorial/2.9.php
+https://docs-python.ru/standart-library/modul-csv-python/funktsija-reader-modulja-csv/
+https://www.geeksforgeeks.org/reading-csv-files-in-python/
+https://realpython.com/python-csv/
+https://pythonworld.ru/moduli/modul-csv.html
+python list операции со списками
+https://pythonworld.ru/tipy-dannyx-v-python/spiski-list-funkcii-i-metody-spiskov.html
+https://skillbox.ru/media/code/spiski-v-python-chto-eto-takoe-i-kak-s-nimi-rabotat/
+https://pythonru.com/primery/python-spiski-primery
+https://metanit.com/python/tutorial/3.1.php
+https://ya.zerocoder.ru/pgt-rabota-so-spiskami-v-python-podrobnoe-rukovodstvo/
+https://thecode.media/python-lists/
+https://sky.pro/media/dobavlenie-elementa-v-slovar-v-python/
+https://code.mu/ru/python/faq/add-dictionary-item/
+https://devpractice.ru/python-lesson-9-dict/
+https://networkx.org/documentation/stable/reference/introduction.html
+https://networkx.org/nx-guides/
+https://packaging.python.org/en/latest/tutorials/installing-packages/
+https://sky.pro/wiki/python/sozdanie-mnogostrochnykh-kommentariev-v-python-analog/
