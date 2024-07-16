@@ -90,6 +90,17 @@ def get_list_index(l, e):
     return -1    
 
 #-------------------
+def get_indx_in_col(e,matr,col):
+    for k in range(len(matr)):
+        if matr[k][col]==e: return k
+    
+    return -1  
+    
+#-------------------
+def xbit(indx):
+    return 2**indx # 1<<indx
+
+#-------------------
 def sort_y_matrG(matrG, lX, lY):
     """
     matrG[x][y]
@@ -112,7 +123,7 @@ def sort_y_matrG(matrG, lX, lY):
         binY=0
         for ky in range(len(matrG[kx])):
             if matrG[kx][ky] == 1:
-                binY += 2**ky
+                binY += xbit(ky)
         binMG.append((binY,kx))  
  
 #Tst   print('binMG-bs:',binMG)
@@ -126,10 +137,6 @@ def sort_y_matrG(matrG, lX, lY):
 #Tst    print('inlX:',inlX)
 #Tst    print('inMG:',inMG)
     return binMG, inlX, inMG
-
-#-------------------
-def xbit(indx):
-    return 2**indx # 1<<indx
 
 #-------------------
 def get_x_connection(indx, binMG):
@@ -305,24 +312,47 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
     """
     prefix str
     bitStr
-    listEdjes[]
+    listEdjes[][edje, edjeIndxInLimit]
     """
-
+    global dual
+    
     s = ''
     cnt = 0
     listBit = list(bitStr)
     listBit.reverse()
-#Tst    print('listBit:',listBit)
-#Tst    print('listEdjes:',listEdjes)
-    for i in range(len(listBit)):
-        if listBit[i] == '1' :
+    print('listBit:',listBit)
+    print('listEdjes:',listEdjes)
+    n = len(listBit)
+    for i in range(n):
+        if dual:
+            k = (n-1)-i
+        else:
+            k = i
+            
+        if listBit[k] == '1' :
             if cnt > 0 :
                 s += ' + '
-            s += prefix + listEdjes[i]
+            j=get_indx_in_col(k,listEdjes,1)
+            s += prefix + listEdjes[j][0]
             cnt = cnt + 1
     
-#Tst    print('s:',s)
+    print('s:',s)
     return s
+
+#-------------------
+def sort_list_by_val(lst):
+
+    print(' sort_list_by_val')
+    #lst_out: [][lst_el, old_indx]
+    lst_out=[]
+    for i in range(len(lst)):
+        lst_out.append([lst[i],i])
+    
+    print('lst_out-s:',lst_out)
+    lst_out.sort()
+    
+    print('lst_out-f:',lst_out)
+    return lst_out
 
 #-------------------
 def print_limits(listR, lX, lY, dual):
@@ -333,7 +363,10 @@ def print_limits(listR, lX, lY, dual):
     lY[y]
     dual: logical
     """
-#    nonlocal lX, lY
+        
+    lXsort = sort_list_by_val(lX)
+    lYsort = sort_list_by_val(lY)
+    
     for l in listR:
  #Tst       print('l:',l)
         sl,sr = '',''
@@ -342,11 +375,11 @@ def print_limits(listR, lX, lY, dual):
  #Tst       print('xa,yb:',xa,yb)
  
         if dual:
-            sl = str_to_limit_side('b',xa,lX)
-            sr = str_to_limit_side('a',yb,lY)
+            sl = str_to_limit_side('b',xa,lXsort)
+            sr = str_to_limit_side('a',yb,lYsort)
         else:
-            sl = str_to_limit_side('a',xa,lX)
-            sr = str_to_limit_side('b',yb,lY)
+            sl = str_to_limit_side('a',xa,lXsort)
+            sr = str_to_limit_side('b',yb,lYsort)
         
         print(sl,'<=',sr)
 
@@ -370,8 +403,8 @@ def build_net_limits(dual,graph):
             
     nX=len(lX)
     nY=len(lY)
-#Tst    print('lX:',nX,lX)
-#Tst    print('lY:',nY,lY)
+    print('lX:',nX,lX)
+    print('lY:',nY,lY)
 
     matrG = [ [0]*nY for i in range(nX) ]
 
@@ -388,10 +421,10 @@ def build_net_limits(dual,graph):
 #Tst    print('matrG:',matrG)
 
     binMG, lX, matrG = sort_y_matrG(matrG, lX, lY)
-#Tst    print(' after sort_y_matrG')
-#Tst    print('binMG:',binMG)
-#Tst    print('lX:',nX,lX)
-#Tst    print('matrG:',matrG)
+    print(' after sort_y_matrG')
+    print('binMG:',binMG)
+    print('lX:',nX,lX)
+    print('matrG:',matrG)
 
     npMG = np.array(matrG)
 #Tst    print('npMG:',npMG)
@@ -412,6 +445,28 @@ def build_net_limits(dual,graph):
 #Tst    print_list_xy('listR',listR)
 
     print_limits(listR, lX, lY, dual)
+
+#-------------------
+def graph_create_dual(graph):
+    graph_dual = dict()
+
+    geX=[]
+    geY=[]
+    
+ #   print('graph_ge',graph)
+    for keyX in graph.keys(): # new y
+#        print('keyX',keyX)
+        # if not check_list(geX, keyX):
+            # geX.append(keyX)
+        
+        for y in graph[keyX]: # new x
+#            print('y',y)
+            # if not check_list(geY, y):
+                # geY.append(y)
+            
+    
+#    print('geX:',geX)
+#    print('geY:',geY)    
 #-------------------
 #-------------------
 
