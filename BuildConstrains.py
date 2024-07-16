@@ -9,16 +9,10 @@ import numpy as np
 fileName="graph0.csv"
 #fileName="graph1.csv"
 fileName="graph11.csv"
-fileName="graph2.csv"
-fileName="graph3.csv"
+#fileName="graph2.csv"
+#fileName="graph3.csv"
 
 print(fileName)
-
-graph = dict()
-lX=[]
-nX=0
-lY=[]
-nY=0
 
 EMPTY_EL=-1
 EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
@@ -51,7 +45,10 @@ def graph_input(fileName):
 
  #   print()
  #   print(graph)
-    return graph   
+    return graph 
+    
+#-------------------
+#def make_graph_dual(graph)
 
 #-------------------
 def check_list(l, e):
@@ -93,15 +90,21 @@ def get_list_index(l, e):
     return -1    
 
 #-------------------
-def sort_y_matrG(matrG, lX):
+def sort_y_matrG(matrG, lX, lY):
     """
     matrG[x][y]
     lX[x]
+    lY[y]
     -
-    binMG[](binY,kx)
-    inMG[]
+    binMG[](binY,kx),inlX[],inMG[][]: binMG, lX, matrG
     """
+#Tst    print(' sort_y_matrG')
     binMG=[]
+    nX = len(lX)
+    nY = len(lY)
+#Tst   print('matrG:',matrG)
+#Tst    print('lX:',nX,lX)
+#Tst    print('lY:',nY,lY)
     inlX = [-1 for i in range(nX) ]
     inMG = [ [0]*nY for i in range(nX) ]
     
@@ -111,13 +114,17 @@ def sort_y_matrG(matrG, lX):
             if matrG[kx][ky] == 1:
                 binY += 2**ky
         binMG.append((binY,kx))  
- #   print('binMG-bs:',binMG)
+ 
+#Tst   print('binMG-bs:',binMG)
     binMG.sort()
- #   print('binMG-as:',binMG)
+#Tst    print('binMG-as:',binMG)
     
     for kx in range(len(binMG)):
        inlX[kx] = lX[binMG[kx][1]] 
-       inMG[kx] = matrG[binMG[kx][1]] 
+       inMG[kx] = matrG[binMG[kx][1]]
+
+#Tst    print('inlX:',inlX)
+#Tst    print('inMG:',inMG)
     return binMG, inlX, inMG
 
 #-------------------
@@ -139,6 +146,7 @@ def get_x_connection(indx, binMG):
 def get_sorted_prev_connections(indx,npQX,binMG):
     """
     It get previous connected vertexis  for current vertex 
+    indx: int
     npQX[kx][kx]
     binMG[](bitY,kx)
     -
@@ -265,7 +273,7 @@ def create_limits(npQX, binMG):
     connection (xbit, ybit)
     xPrevLimitList[](xbit, ybit)
     """
-    print(' create_limits')
+#Tst     print(' create_limits')
     listLimits = []
     for indx in range(len(npQX)):
         if indx == 0 :
@@ -317,65 +325,108 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
     return s
 
 #-------------------
-def print_limits(listR):
+def print_limits(listR, lX, lY, dual):
     """
     print limit in symbolic view
     listR[](xbit, ybit)
+    lX[x]
+    lY[y]
+    dual: logical
     """
-
+#    nonlocal lX, lY
     for l in listR:
  #Tst       print('l:',l)
-        sa,sb = '',''
+        sl,sr = '',''
         xa = int2BinStr(l[0])
         yb = int2BinStr(l[1])
  #Tst       print('xa,yb:',xa,yb)
-        sa = str_to_limit_side('a',xa,lX)
-        sb = str_to_limit_side('b',yb,lY)
+ 
+        if dual:
+            sl = str_to_limit_side('b',xa,lX)
+            sr = str_to_limit_side('a',yb,lY)
+        else:
+            sl = str_to_limit_side('a',xa,lX)
+            sr = str_to_limit_side('b',yb,lY)
         
-        print(sa,'<=',sb)
+        print(sl,'<=',sr)
 
 #-------------------
+def build_net_limits(dual,graph):
+    """
+    dual: logical
+    graph: 
+    """
+    print('dual:',dual)
+    lX=[]
+    nX=0
+    lY=[]
+    nY=0
+
+    lXold, lYold = gen_edjes(graph)
+    if dual:
+        lY, lX = lXold, lYold
+    else:
+        lX, lY = lXold, lYold
+            
+    nX=len(lX)
+    nY=len(lY)
+#Tst    print('lX:',nX,lX)
+#Tst    print('lY:',nY,lY)
+
+    matrG = [ [0]*nY for i in range(nX) ]
+
+    for keyX in graph.keys():
+        indX=lXold.index(keyX)
+        for y in graph[keyX]:
+            indY=lYold.index(y)
+            
+            if dual:
+                matrG[indY][indX] = 1
+            else:
+                matrG[indX][indY] = 1
+
+#Tst    print('matrG:',matrG)
+
+    binMG, lX, matrG = sort_y_matrG(matrG, lX, lY)
+#Tst    print(' after sort_y_matrG')
+#Tst    print('binMG:',binMG)
+#Tst    print('lX:',nX,lX)
+#Tst    print('matrG:',matrG)
+
+    npMG = np.array(matrG)
+#Tst    print('npMG:',npMG)
+    #print('npMGT',npMG.transpose())
+    # if dual:
+        # npMG = npMG.transpose()
+#    print('npMG:',npMG)
+    #print('npMGT',npMG.transpose()) 
+    npMX = np.dot(npMG, npMG.transpose())
+    #Tst print(' after np.dot')
+    #Tst print('npMX:',npMX)
+    npQX = np.minimum(npMX, 1)
+#Tst    print('npQX:',npQX)
+
+    listR = []
+
+    listR = create_limits(npQX, binMG)
+#Tst    print_list_xy('listR',listR)
+
+    print_limits(listR, lX, lY, dual)
 #-------------------
+#-------------------
+
+graph = dict()
+graph_dual = dict()
 
 graph = graph_input(fileName)
 #Tst print(' after graph_input')
 print('graph:',graph)
-    
-lX, lY = gen_edjes(graph)
-nX=len(lX)
-nY=len(lY)
-print('lX:',nX,lX)
-print('lY:',nY,lY)
 
-matrG = [ [0]*nY for i in range(nX) ]
+dual = False
+build_net_limits(dual,graph)
+#graph_dual = make_graph_dual(graph)
+#print('graph_dual:',graph_dual)
+dual = True
+build_net_limits(dual,graph)    
 
-for keyX in graph.keys():
-    indX=lX.index(keyX)
-    for y in graph[keyX]:
-        indY=lY.index(y)
-        matrG[indX][indY] = 1
-
-#Tst print('matrG:',matrG)
-
-binMG, lX, matrG = sort_y_matrG(matrG, lX)
-#Tst print(' after sort_y_matrG')
-#Tst print('binMG:',binMG)
-#Tst print('lX:',nX,lX)
-print('matrG:',matrG)
-
-npMG = np.array(matrG)
-#print('npMG:',npMG)
-#print('npMGT',npMG.transpose())
-npMX = np.dot(npMG, npMG.transpose())
-#Tst print(' after np.dot')
-#Tst print('npMX:',npMX)
-npQX = np.minimum(npMX, 1)
-print('npQX:',npQX)
-
-listR = []
-
-listR = create_limits(npQX, binMG)
-print_list_xy('listR',listR)
-
-print_limits(listR)
 
