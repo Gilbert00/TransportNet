@@ -1,18 +1,19 @@
+import sys, getopt
 import datetime #as dt
-print(datetime.datetime.now().strftime("%d-%m-%Y_%H:%M"))
+#print(datetime.datetime.now().strftime("%d-%m-%Y_%H:%M"))
 
 import csv
 #import networkx as nx
 #G = nx.Graph()
 import numpy as np
 
-fileName="graph0.csv"
+#fileName="graph0.csv"
 #fileName="graph1.csv"
-fileName="graph11.csv"
+#fileName="graph11.csv"
 #fileName="graph2.csv"
 #fileName="graph3.csv"
 
-print(fileName)
+#print(fileName)
 
 EMPTY_EL=-1
 EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
@@ -36,6 +37,7 @@ def print_list_xy(prefix, list_xy):
 
 #-------------------
 def graph_input(fileName):
+    graph = dict()
     with open(fileName, mode ='r') as csv_file:
         fileReader = csv.reader(csv_file)
         for row in fileReader:
@@ -98,15 +100,15 @@ def xbit(indx):
     return 2**indx # 1<<indx
 
 #-------------------
-def sort_y_matrG(matrG, lX, lY):
+def sort_matrG_by_x(matrG, lX, lY):
     """
     matrG[x][y]
     lX[x]
     lY[y]
     -
-    binMG[](binY,kx),inlX[],inMG[][]: binMG, lX, matrG
+    binMG[](binY,kx),inlX[],inmatrMG[][]: binMG, lX, matrG
     """
-#Tst    print(' sort_y_matrG')
+#Tst    print(' sort_matrG_by_x')
     binMG=[]
     nX = len(lX)
     nY = len(lY)
@@ -114,7 +116,7 @@ def sort_y_matrG(matrG, lX, lY):
 #Tst    print('lX:',nX,lX)
 #Tst    print('lY:',nY,lY)
     inlX = [-1 for i in range(nX) ]
-    inMG = [ [0]*nY for i in range(nX) ]
+    inmatrMG = [ [0]*nY for i in range(nX) ]
     
     for kx in range(len(matrG)): #.keys():
         binY=0
@@ -129,11 +131,11 @@ def sort_y_matrG(matrG, lX, lY):
     
     for kx in range(len(binMG)):
        inlX[kx] = lX[binMG[kx][1]] 
-       inMG[kx] = matrG[binMG[kx][1]]
+       inmatrMG[kx] = matrG[binMG[kx][1]]
 
 #Tst    print('inlX:',inlX)
 #Tst    print('inMG:',inMG)
-    return binMG, inlX, inMG
+    return binMG, inlX, inmatrMG
 
 #-------------------
 def get_x_connection(indx, binMG):
@@ -317,15 +319,12 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
     cnt = 0
     listBit = list(bitStr)
     listBit.reverse()
-    print('listBit:',listBit)
-    print('listEdjes:',listEdjes)
+#Tst1    print('listBit:',listBit)
+#Tst1    print('listEdjes:',listEdjes)
     n = len(listBit)
     for i in range(n):
-        # if dual:
-            # k = (n-1)-i
-        # else:
+
         k = i
-            
         if listBit[k] == '1' :
             if cnt > 0 :
                 s += ' + '
@@ -333,22 +332,22 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
             s += prefix + listEdjes[j][0]
             cnt = cnt + 1
     
-    print('s:',s)
+#Tst1    print('s:',s)
     return s
 
 #-------------------
 def sort_list_by_val(lst):
 
-    print(' sort_list_by_val')
+#Tst1    print(' sort_list_by_val')
     #lst_out: [][lst_el, old_indx]
     lst_out=[]
     for i in range(len(lst)):
         lst_out.append([lst[i],i])
     
-    print('lst_out-s:',lst_out)
+#Tst1    print('lst_out-s:',lst_out)
     lst_out.sort()
     
-    print('lst_out-f:',lst_out)
+#Tst1    print('lst_out-f:',lst_out)
     return lst_out
 
 #-------------------
@@ -393,15 +392,13 @@ def build_net_limits(dual,graph):
     nY=0
 
     lXold, lYold = gen_edjes(graph)
-    # if dual:
-        # lY, lX = lXold, lYold
-    # else:
+
     lX, lY = lXold, lYold
             
     nX=len(lX)
     nY=len(lY)
-    print('lX:',nX,lX)
-    print('lY:',nY,lY)
+#Tst1    print('lX:',nX,lX)
+#Tst1    print('lY:',nY,lY)
 
     matrG = [ [0]*nY for i in range(nX) ]
 
@@ -410,18 +407,15 @@ def build_net_limits(dual,graph):
         for y in graph[keyX]:
             indY=lYold.index(y)
             
-            # if dual:
-                # matrG[indY][indX] = 1
-            # else:
             matrG[indX][indY] = 1
 
-    print('matrG:',matrG)
+#Tst1    print('matrG:',matrG)
 
-    binMG, lX, matrG = sort_y_matrG(matrG, lX, lY)
-    print(' after sort_y_matrG')
-    print('binMG:',binMG)
-    print('lX:',nX,lX)
-    print('matrG:',matrG)
+    binMG, lX, matrG = sort_matrG_by_x(matrG, lX, lY)
+#Tst1    print(' after sort_matrG_by_x')
+#Tst1    print('binMG:',binMG)
+#Tst1    print('lX:',nX,lX)
+#Tst1    print('matrG:',matrG)
 
     npMG = np.array(matrG)
 #Tst    print('npMG:',npMG)
@@ -466,20 +460,43 @@ def graph_create_dual(graph):
     return graph_dual
 
 #-------------------
+def main(argv):
+
+    fileName = argv[1]
+    print(fileName)
+    
+    if len(sys.argv) > 2 :
+        nRejim = int(argv[2])
+    else:
+        nRejim = 0
+
+    print('rejim:',nRejim)
+    graph = dict()
+
+    graph = graph_input(fileName)
+    #Tst print(' after graph_input')
+    print('graph:',graph)
+
+    if nRejim in (0,1):
+        dual = False
+        build_net_limits(dual,graph)
+
+    if nRejim in (0,2):
+        dual = True
+        graph_dual = graph_create_dual(graph)
+        print('graph_dual:',graph_dual)
+        build_net_limits(dual,graph_dual)
+
+    if not nRejim in (0,1,2):
+        print('Invalid rejim !',nRejim)
+
 #-------------------
+#-------------------
+if __name__ == "__main__":
+    print(datetime.datetime.now().strftime("%d-%m-%Y_%H:%M"))
 
-graph = dict()
-
-graph = graph_input(fileName)
-#Tst print(' after graph_input')
-print('graph:',graph)
-
-dual = False
-build_net_limits(dual,graph)
-
-dual = True
-graph_dual = graph_create_dual(graph)
-print('graph_dual:',graph_dual)
-build_net_limits(dual,graph_dual)
-
-
+    if len(sys.argv) == 1:
+        print('Usage: ' + sys.argv[0] + ' Input_File' + ' rejim(?)')
+    else:
+        print(sys.argv)
+        main(sys.argv)
