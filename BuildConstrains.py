@@ -48,9 +48,6 @@ def graph_input(fileName):
     return graph 
     
 #-------------------
-#def make_graph_dual(graph)
-
-#-------------------
 def check_list(l, e):
 #    print('lcl',l)
 #    print('e',e)
@@ -324,10 +321,10 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
     print('listEdjes:',listEdjes)
     n = len(listBit)
     for i in range(n):
-        if dual:
-            k = (n-1)-i
-        else:
-            k = i
+        # if dual:
+            # k = (n-1)-i
+        # else:
+        k = i
             
         if listBit[k] == '1' :
             if cnt > 0 :
@@ -396,10 +393,10 @@ def build_net_limits(dual,graph):
     nY=0
 
     lXold, lYold = gen_edjes(graph)
-    if dual:
-        lY, lX = lXold, lYold
-    else:
-        lX, lY = lXold, lYold
+    # if dual:
+        # lY, lX = lXold, lYold
+    # else:
+    lX, lY = lXold, lYold
             
     nX=len(lX)
     nY=len(lY)
@@ -413,12 +410,12 @@ def build_net_limits(dual,graph):
         for y in graph[keyX]:
             indY=lYold.index(y)
             
-            if dual:
-                matrG[indY][indX] = 1
-            else:
-                matrG[indX][indY] = 1
+            # if dual:
+                # matrG[indY][indX] = 1
+            # else:
+            matrG[indX][indY] = 1
 
-#Tst    print('matrG:',matrG)
+    print('matrG:',matrG)
 
     binMG, lX, matrG = sort_y_matrG(matrG, lX, lY)
     print(' after sort_y_matrG')
@@ -428,11 +425,6 @@ def build_net_limits(dual,graph):
 
     npMG = np.array(matrG)
 #Tst    print('npMG:',npMG)
-    #print('npMGT',npMG.transpose())
-    # if dual:
-        # npMG = npMG.transpose()
-#    print('npMG:',npMG)
-    #print('npMGT',npMG.transpose()) 
     npMX = np.dot(npMG, npMG.transpose())
     #Tst print(' after np.dot')
     #Tst print('npMX:',npMX)
@@ -449,29 +441,34 @@ def build_net_limits(dual,graph):
 #-------------------
 def graph_create_dual(graph):
     graph_dual = dict()
-
-    geX=[]
-    geY=[]
+ 
+    NON=-1
     
- #   print('graph_ge',graph)
     for keyX in graph.keys(): # new y
-#        print('keyX',keyX)
-        # if not check_list(geX, keyX):
-            # geX.append(keyX)
+ #Tst        print('keyX',keyX)
         
         for y in graph[keyX]: # new x
-#            print('y',y)
-            # if not check_list(geY, y):
-                # geY.append(y)
+ #Tst            print('y',y)
+            if graph_dual.get(y,NON) == NON :
+ #Tst                print('NON')
+                graph_dual[y] = []
+                graph_dual[y].append(keyX)
+            else:
+                if not check_list(graph_dual[y], keyX):
+ #Tst                    print('append')
+                    graph_dual[y].append(keyX)
+                else:
+                    pass #Error! Dupl edje
             
-    
-#    print('geX:',geX)
-#    print('geY:',geY)    
+ #Tst            print('gd',graph_dual)
+            
+ #Tst    print('graph_dual:',graph_dual)            
+    return graph_dual
+
 #-------------------
 #-------------------
 
 graph = dict()
-graph_dual = dict()
 
 graph = graph_input(fileName)
 #Tst print(' after graph_input')
@@ -479,9 +476,10 @@ print('graph:',graph)
 
 dual = False
 build_net_limits(dual,graph)
-#graph_dual = make_graph_dual(graph)
-#print('graph_dual:',graph_dual)
+
 dual = True
-build_net_limits(dual,graph)    
+graph_dual = graph_create_dual(graph)
+print('graph_dual:',graph_dual)
+build_net_limits(dual,graph_dual)
 
 
