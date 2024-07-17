@@ -741,7 +741,61 @@ b4 + b3 + b2 + b1 <= a4 + a1 + a3 + a2
 
 Process finished with exit code 0
 --
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py graph11.csv 0 
+17-07-2024_19:46
+['D:\\TransportNet\\BuildConstrains.py', 'graph11.csv', '0']
+graph11.csv
+mode: 0
+graph: {'4': ['1', '2', '3', '4'], '1': ['1'], '3': ['1', '2', '3'], '2': ['1', '2']}
+dual: False
+a1 <= b1
+a1 + a2 <= b1 + b2
+a1 + a2 + a3 <= b1 + b2 + b3
+a1 + a2 + a3 + a4 <= b1 + b2 + b3 + b4
+graph_dual: {'1': ['4', '1', '3', '2'], '2': ['4', '3', '2'], '3': ['4', '3'], '4': ['4']}
+graph_dual: {'1': ['1', '2', '3', '4'], '2': ['2', '3', '4'], '3': ['3', '4'], '4': ['4']}
+graph_dual: {'1': ['1', '2', '3', '4'], '2': ['2', '3', '4'], '3': ['3', '4'], '4': ['4']}
+dual: True
+b4 <= a4
+b4 + b3 <= a3 + a4
+b4 + b3 + b2 <= a2 + a3 + a4
+b4 + b3 + b2 + b1 <= a1 + a2 + a3 + a4
 
+Process finished with exit code 0
+
+-
+C:\Users\User\PycharmProjects\TransportNet\venv\Scripts\python.exe D:\TransportNet\BuildConstrains.py graph2.csv 0 
+17-07-2024_19:51
+['D:\\TransportNet\\BuildConstrains.py', 'graph2.csv', '0']
+graph2.csv
+mode: 0
+graph: {'1': ['1', '2'], '2': ['2', '3'], '3': ['3', '4'], '4': ['4', '5']}
+dual: False
+a1 <= b1 + b2
+a2 <= b2 + b3
+a1 + a2 <= b1 + b2 + b3
+a3 <= b3 + b4
+a2 + a3 <= b2 + b3 + b4
+a1 + a2 + a3 <= b1 + b2 + b3 + b4
+a4 <= b4 + b5
+a3 + a4 <= b3 + b4 + b5
+a2 + a3 + a4 <= b2 + b3 + b4 + b5
+a1 + a2 + a3 + a4 <= b1 + b2 + b3 + b4 + b5
+graph_dual: {'1': ['1'], '2': ['1', '2'], '3': ['2', '3'], '4': ['3', '4'], '5': ['4']}
+graph_dual: {'1': ['1'], '2': ['1', '2'], '3': ['2', '3'], '4': ['3', '4'], '5': ['4']}
+graph_dual: {'1': ['1'], '2': ['1', '2'], '3': ['2', '3'], '4': ['3', '4'], '5': ['4']}
+dual: True
+b1 <= a1
+b1 + b2 <= a1 + a2
+b3 <= a2 + a3
+b1 + b2 + b3 <= a1 + a2 + a3
+b5 <= a4
+b3 + b4 <= a2 + a3 + a4
+b1 + b2 + b3 + b4 <= a1 + a2 + a3 + a4
+b5 + b4 <= a3 + a4
+
+Process finished with exit code 0
+-
 
 
 
@@ -1432,3 +1486,8 @@ https://proglib.io/p/kak-pravilno-sortirovat-dannye-v-pandas
 https://ru.stackoverflow.com/questions/1414122/%D0%A1%D0%BE%D1%80%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0-%D0%BC%D0%B0%D1%82%D1%80%D0%B8%D1%86%D1%8B-%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D1%81%D1%82%D0%BE%D0%BB%D0%B1%D1%86%D1%8B-%D0%B2-%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BA%D0%B5-%D1%83%D0%BC%D0%B5%D0%BD%D1%8C%D1%88%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81%D1%83%D0%BC%D0%BC-%D0%B8%D1%85-%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2-%D0%B8%D1%81
 http://cs.mipt.ru/advanced_python/lessons/lab16.html
 https://proglib.io/p/kak-pravilno-sortirovat-dannye-v-pandas
+https://skillbox.ru/media/code/vyzov-znacheniy-iz-slovarya-python/
+https://tproger.ru/explain/python-dictionaries
+https://pythonworld.ru/tipy-dannyx-v-python/slovari-dict-funkcii-i-metody-slovarej.html
+https://pythontutor.ru/lessons/dicts/
+https://www.sravni.ru/kursy/info/kak-vzyat-znachenie-iz-slovarya-python-i-ne-slomat-prilozhenie/

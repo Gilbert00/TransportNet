@@ -453,10 +453,12 @@ def graph_create_dual(graph):
                     graph_dual[y].append(keyX)
                 else:
                     pass #Error! Dupl edje
-            
- #Tst            print('gd',graph_dual)
-            
- #Tst    print('graph_dual:',graph_dual)            
+        
+ #Tst2   print('graph_dual:',graph_dual)
+    for key in graph_dual.keys():
+        graph_dual[key].sort()
+
+#    print('graph_dual:',graph_dual)
     return graph_dual
 
 #-------------------
@@ -466,29 +468,29 @@ def main(argv):
     print(fileName)
     
     if len(sys.argv) > 2 :
-        nRejim = int(argv[2])
+        nMode = int(argv[2])
     else:
-        nRejim = 0
+        nMode = 0
 
-    print('rejim:',nRejim)
+    print('mode:',nMode)
     graph = dict()
 
     graph = graph_input(fileName)
     #Tst print(' after graph_input')
     print('graph:',graph)
 
-    if nRejim in (0,1):
+    if nMode in (0,1):
         dual = False
         build_net_limits(dual,graph)
 
-    if nRejim in (0,2):
+    if nMode in (0,2):
         dual = True
         graph_dual = graph_create_dual(graph)
         print('graph_dual:',graph_dual)
         build_net_limits(dual,graph_dual)
 
-    if not nRejim in (0,1,2):
-        print('Invalid rejim !',nRejim)
+    if not nMode in (0,1,2):
+        print('Invalid mode !',nMode)
 
 #-------------------
 #-------------------
@@ -496,7 +498,7 @@ if __name__ == "__main__":
     print(datetime.datetime.now().strftime("%d-%m-%Y_%H:%M"))
 
     if len(sys.argv) == 1:
-        print('Usage: ' + sys.argv[0] + ' Input_File' + ' rejim(?)')
+        print('Usage: ' + sys.argv[0] + ' Input_File' + ' mode(?)')
     else:
         print(sys.argv)
         main(sys.argv)
