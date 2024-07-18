@@ -313,41 +313,46 @@ def str_to_limit_side(prefix,bitStr,listEdjes):
     bitStr
     listEdjes[][edje, edjeIndxInLimit]
     """
-    global dual
+   
+    listBit = list(bitStr)
+    listBit.reverse()
+#Tst3    print('listBit:',listBit)
+#Tst3    print('listEdjes:',listEdjes)
+    
+    n = len(listBit)
+    listS = []
+    for i in range(n):
+        if listBit[i] == '1' :
+            j=get_indx_in_col(i,listEdjes,1)
+            listS.append(listEdjes[j][0])
+            
+    listS.sort()
+ #Tst3   print('listS:',listS) 
     
     s = ''
     cnt = 0
-    listBit = list(bitStr)
-    listBit.reverse()
-#Tst1    print('listBit:',listBit)
-#Tst1    print('listEdjes:',listEdjes)
-    n = len(listBit)
-    for i in range(n):
-
-        k = i
-        if listBit[k] == '1' :
-            if cnt > 0 :
-                s += ' + '
-            j=get_indx_in_col(k,listEdjes,1)
-            s += prefix + listEdjes[j][0]
-            cnt = cnt + 1
-    
-#Tst1    print('s:',s)
+    for k in range(len(listS)):
+        if cnt > 0 :
+            s += ' + '   
+        s += prefix + listS[k]
+        cnt = cnt + 1
+            
+ #Tst3   print('s:',s)
     return s
 
 #-------------------
 def sort_list_by_val(lst):
 
-#Tst1    print(' sort_list_by_val')
+#Tst3    print(' sort_list_by_val')
     #lst_out: [][lst_el, old_indx]
     lst_out=[]
     for i in range(len(lst)):
         lst_out.append([lst[i],i])
     
-#Tst1    print('lst_out-s:',lst_out)
+#Tst3    print('lst_out-s:',lst_out)
     lst_out.sort()
     
-#Tst1    print('lst_out-f:',lst_out)
+#Tst3    print('lst_out-f:',lst_out)
     return lst_out
 
 #-------------------
@@ -364,11 +369,11 @@ def print_limits(listR, lX, lY, dual):
     lYsort = sort_list_by_val(lY)
     
     for l in listR:
- #Tst       print('l:',l)
+#Tst3        print('R:',l)
         sl,sr = '',''
         xa = int2BinStr(l[0])
         yb = int2BinStr(l[1])
- #Tst       print('xa,yb:',xa,yb)
+#Tst3        print('xa,yb:',xa,yb)
  
         if dual:
             sl = str_to_limit_side('b',xa,lXsort)
@@ -385,7 +390,7 @@ def build_net_limits(dual,graph):
     dual: logical
     graph: 
     """
-    print('dual:',dual)
+#Tst    print('dual:',dual)
     lX=[]
     nX=0
     lY=[]
@@ -428,7 +433,7 @@ def build_net_limits(dual,graph):
     listR = []
 
     listR = create_limits(npQX, binMG)
-#Tst    print_list_xy('listR',listR)
+    print_list_xy('listR',listR)
 
     print_limits(listR, lX, lY, dual)
 
