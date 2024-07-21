@@ -18,6 +18,8 @@ import numpy as np
 EMPTY_EL=-1
 EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
 
+TST=0
+
 #-------------------
 def int2BinStr(i):
     return bin(i)[2:]
@@ -108,13 +110,13 @@ def sort_matrG_by_x(matrG, lX, lY):
     -
     inbinMG[](binY,kx),inlX[],inmatrMG[][]: binMG, lX, matrG
     """
-#Tst    print(' sort_matrG_by_x')
+    if TST in [1]: print(' sort_matrG_by_x')
     inbinMG=[]
     nX = len(lX)
     nY = len(lY)
-#Tst   print('matrG:',matrG)
-#Tst    print('lX:',nX,lX)
-#Tst    print('lY:',nY,lY)
+    if TST in [1]: print('matrG:',matrG)
+    if TST in [1]: print('lX:',nX,lX)
+    if TST in [1]: print('lY:',nY,lY)
     inlX = [-1 for i in range(nX) ]
     inmatrMG = [ [0]*nY for i in range(nX) ]
     
@@ -125,16 +127,16 @@ def sort_matrG_by_x(matrG, lX, lY):
                 binY += xbit(ky)
         inbinMG.append((binY,kx))  
  
-#Tst   print('inbinMG-bs:',binMG)
-    inbinMG.sort()
-#Tst    print('inbinMG-as:',binMG)
+    if TST in [1]: print('inbinMG-bs:',binMG)
+# for connected graph!!!   inbinMG.sort()
+    if TST in [1]: print('inbinMG-as:',binMG)
     
     for kx in range(len(inbinMG)):
        inlX[kx] = lX[inbinMG[kx][1]] 
        inmatrMG[kx] = matrG[inbinMG[kx][1]]
 
-#Tst    print('inlX:',inlX)
-#Tst    print('inMG:',inMG)
+    if TST in [1]: print('inlX:',inlX)
+    if TST in [1]: print('inMG:',inMG)
     return inbinMG, inlX, inmatrMG
 
 #-------------------
@@ -145,7 +147,7 @@ def get_x_connection(indx, binMG):
     """
     x=xbit(indx)
     y=binMG[indx][0]
-#Tst4    print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Tst4
+    if TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Tst4
     return ((x, y))
     
 #-------------------
@@ -158,7 +160,7 @@ def get_sorted_prev_connections(indx,npQX,binMG):
     -
     prev_connections[](xbit, ybit)
     """
-#Tst4    print(' get_sorted_prev_connections')#Tst
+    if TST in [4]: print(' get_sorted_prev_connections')#Tst
 #Tst     print(f'npQX[{indx}]',npQX[indx])
     prev_connections=[]
     
@@ -166,7 +168,7 @@ def get_sorted_prev_connections(indx,npQX,binMG):
         if npQX[indx][i] == 1:
             prev_connections.append((xbit(i), binMG[i][0]))  # get_x_connection
     
-#Tst4    print('indx,prev_connections',indx,prev_connections)#Tst
+    if TST in [4]: print('indx,prev_connections',indx,prev_connections)#Tst
     return prev_connections
 
 #-------------------
@@ -178,7 +180,7 @@ def get_prev_connected_limits(listLimits, xPrevConnections):
     -
     prev_limits[](xbit, ybit)
     """
-#Tst4    print(' get_prev_connected_limits')#Tst
+    if TST in [4]: print(' get_prev_connected_limits')#Tst
 #Tst     print_list_xy('xPrevConnections',xPrevConnections)
 #Tst     print_list_xy('listLimits',listLimits)
     
@@ -190,7 +192,7 @@ def get_prev_connected_limits(listLimits, xPrevConnections):
             if listLimits[k][0] & xPrev > 0 :
                 prev_limits.append(listLimits[k])
           
-#Tst4    print_list_xy('prev_limits',prev_limits)#Tst
+    if TST in [4]: print_list_xy('prev_limits',prev_limits)#Tst
     return prev_limits
     
 #-------------------
@@ -200,16 +202,16 @@ def add_xy_bits_to_prev(indx,binMG,xPrevLimitList):
     binMG[](bitY,kx)
     xPrevLimitList[](xbit, ybit)
     """
-#Tst4    print(' add_xy_bits_to_prev')#Tst
-#Tst4    print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
+    if TST in [4]: print(' add_xy_bits_to_prev')#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
     x=xbit(indx)
     y=binMG[indx][0]
-#Tst4    print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
+    if TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
     
     for i in range(len(xPrevLimitList)):
         xPrevLimitList[i] = (xPrevLimitList[i][0] | x, xPrevLimitList[i][1] | y) 
     
-#Tst4    print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
     return xPrevLimitList
 
 #-------------------
@@ -218,8 +220,8 @@ def check_dupl_y_in_prev(xPrevLimitList):
     check and clear previous limits for duplicated y
     xPrevLimitList[](xbit, ybit)
     """
-#Tst4    print(' check_dupl_y_in_prev')#Tst
-#Tst4    print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
+    if TST in [4]: print(' check_dupl_y_in_prev')#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
     lenP = len(xPrevLimitList)
     
     for kp in range(lenP-1, -1, -1):
@@ -233,7 +235,7 @@ def check_dupl_y_in_prev(xPrevLimitList):
 #!!!check_dupl_xy(xPrevLimitList)
 #   clear list
     
-#Tst4    print_list_xy('xPrevLimitList-e',xPrevLimitList)#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList-e',xPrevLimitList)#Tst
     
 #   clear previous limits
 #   clear list 
@@ -241,7 +243,7 @@ def check_dupl_y_in_prev(xPrevLimitList):
         if xPrevLimitList[kp] == EMPTY_TURTLE:
             del xPrevLimitList[kp]
             
-#Tst4    print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
     return xPrevLimitList
 
 #-------------------
@@ -251,9 +253,9 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
     listLimits[](xbit, ybit)
     xPrevLimitList[](xbit, ybit)
     """
-#Tst4    print(' check_prev_y_in_limits')#Tst
-#Tst4    print_list_xy('xPrevLimitList',xPrevLimitList)#Tst
-#Tst4    print_list_xy('listLimits-s',listLimits)#Tst
+    if TST in [4]: print(' check_prev_y_in_limits')#Tst
+    if TST in [4]: print_list_xy('xPrevLimitList',xPrevLimitList)#Tst
+    if TST in [4]: print_list_xy('listLimits-s',listLimits)#Tst
     lenP = len(xPrevLimitList)
     lenL = len(listLimits)
     
@@ -266,7 +268,7 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
 
 #!!!check_dupl_xy(xPrevLimitList)
                 
-#Tst4    print_list_xy('listLimits-e',listLimits)#Tst            
+    if TST in [4]: print_list_xy('listLimits-e',listLimits)#Tst            
 
 #   clear limits 
 #   clear list               
@@ -274,7 +276,7 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
         if listLimits[kl] == EMPTY_TURTLE:
             del listLimits[kl]
         
-#Tst4    print_list_xy('listLimits-f',listLimits)  #Tst  
+    if TST in [4]: print_list_xy('listLimits-f',listLimits)  #Tst  
     return listLimits
 
 #-------------------
@@ -291,11 +293,11 @@ def create_limits(npQX, binMG):
 #Tst     print(' create_limits')
     listLimits = []
     for indx in range(len(npQX)):
-#Tst4       print('indQX:',indx)
+        if TST in [4]: print('indQX:',indx)
         if indx == 0 :
             connection=get_x_connection(indx, binMG)
             listLimits.append(connection)
-#Tst4            print_list_xy('after append listLimits',listLimits)
+            if TST in [4]: print_list_xy('after append listLimits',listLimits)
             continue
         else:
             xPrevConnections = get_sorted_prev_connections(indx,npQX,binMG)
@@ -306,14 +308,14 @@ def create_limits(npQX, binMG):
             
             connection=get_x_connection(indx, binMG)
             listLimits.append(connection)
-#Tst4        print_list_xy('after append listLimits',listLimits)
+            if TST in [4]: print_list_xy('after append listLimits',listLimits)
             
             if len(xPrevLimitList) > 0 :
                 xPrevLimitList = add_xy_bits_to_prev(indx,binMG,xPrevLimitList)
                 xPrevLimitList = check_dupl_y_in_prev(xPrevLimitList)
                 listLimits = check_prev_y_in_limits(listLimits,xPrevLimitList)
                 listLimits.extend(xPrevLimitList)
-#Tst                 print_list_xy('after extend listLimits',listLimits)
+                if TST in [4]: print_list_xy('after extend listLimits',listLimits)
                     
     return listLimits
 
@@ -413,8 +415,8 @@ def build_net_limits(dual,graph):
             
     nX=len(lX)
     nY=len(lY)
-#Tst1    print('lX:',nX,lX)
-#Tst1    print('lY:',nY,lY)
+    if TST in [1]: print('lX:',nX,lX)
+    if TST in [1]: print('lY:',nY,lY)
 
     matrG = [ [0]*nY for i in range(nX) ]
 #   matrG: [indX][indY]  -> 1 if x connect y
@@ -425,13 +427,13 @@ def build_net_limits(dual,graph):
             
             matrG[indX][indY] = 1
 
-#Tst1    print('matrG:',matrG)
+    if TST in [1]: print('matrG:',matrG)
 
     binMG, lX, matrG = sort_matrG_by_x(matrG, lX, lY)
-#Tst4    print(' after sort_matrG_by_x')#Tst1
-#Tst4    print('binMG:',binMG)#Tst1
-#Tst4    print('lX:',nX,lX)#Tst1
-#Tst4    print('matrG:',matrG)#Tst1
+    if TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
+    if TST in [1,4]: print('binMG:',binMG)#Tst1
+    if TST in [1,4]: print('lX:',nX,lX)#Tst1
+    if TST in [1,4]: print('matrG:',matrG)#Tst1
 
     npMG = np.array(matrG)
 #Tst    print('npMG:',npMG)
@@ -439,7 +441,7 @@ def build_net_limits(dual,graph):
     #Tst print(' after np.dot')
     #Tst print('npMX:',npMX)
     npQX = np.minimum(npMX, 1)
-#Tst4    print('npQX:',npQX)#Tst
+    if TST in [1,4]: print('npQX:',npQX)#Tst
 
     listR = []
 
