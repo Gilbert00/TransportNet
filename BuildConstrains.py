@@ -1,3 +1,4 @@
+import os
 import sys, getopt
 import datetime #as dt
 import queue
@@ -519,7 +520,12 @@ def main(argv):
 
     fileName = argv[1]
     print(fileName)
-# check filename for existence !    
+    
+# check filename for existence !  
+    if not os.path.isfile(fileName):
+        print(f"The input file {fileName} doesn't exists!")
+        return
+  
     if len(sys.argv) > 2 :
         nMode = int(argv[2])
     else:
