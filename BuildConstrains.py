@@ -1,7 +1,6 @@
 import sys, getopt
 import datetime #as dt
-#print(datetime.datetime.now().strftime("%d-%m-%Y_%H:%M"))
-
+import queue
 import csv
 #import networkx as nx
 #G = nx.Graph()
@@ -81,16 +80,6 @@ def gen_edjes(graph):
     return geX, geY
 
 #-------------------
-# def get_list_index(l, e):
-# # NOT USED !
-# #    print('lcl',l)
-# #    print('e',e)
-    # for k in range(len(l)):
-        # if l[k]==e: return k
-    
-    # return -1    
-
-#-------------------
 def get_indx_in_col(e,matr,col):
     for k in range(len(matr)):
         if matr[k][col]==e: return k
@@ -102,7 +91,67 @@ def xbit(indx):
     return 2**indx # 1<<indx
 
 #-------------------
-def sort_matrG_by_x(matrG, lX, lY):
+def set_npQX(matrG):
+    npMG = np.array(matrG)
+#Tst    print('npMG:',npMG)
+    npMX = np.dot(npMG, npMG.transpose())
+    #Tst print(' after np.dot')
+    #Tst print('npMX:',npMX)
+    npQX = np.minimum(npMX, 1)
+    
+    return npQX
+    
+#-------------------
+def set_binY(iv,matrG):
+    binY=0
+    for ky in range(len(matrG[iv])):
+        if matrG[iv][ky] == 1:
+            binY += xbit(ky)
+            
+    return binY
+
+#-------------------
+def sort_BSF_x(npQX,matrG):
+
+# BFS
+# Вход: граф G = (V, E), представленный в виде списков смежности,
+# и вершина s ∈ V.
+# Постусловие: вершина достижима из s тогда и только тогда,
+# когда она помечена как «разведанная».
+# 1) пометить s как разведанную вершину, все остальные как не-
+# разведанные
+# 2) Q := очередь, инициализированная вершиной s
+# 3) while Q не является пустой do
+# 4) удалить вершину из начала Q, назвать ее v
+# 5) for каждое ребро (v, w) в списке смежности v do
+# 6) if w не разведана then
+# 7) пометить w как разведанную
+# 8) добавить w в конец Q    
+
+    q = queue.Queue()
+
+    lenQX = len(npQX)
+    explored = [ False for i in range(lenQX) ]
+    inbinMG = [ (-1,-1) for i in range(lenQX) ]
+    
+    ibin: int = 0
+    while ibin < lenQX:
+        istrt = ibin
+        explored[istrt] = True
+        q.put(istrt)
+        while not q.empty():
+            iv = q.get()
+            inbinMG[ibin] = (set_binY(iv,matrG),iv)
+            ibin += 1
+            for iw in range(len(npQX[iv])):
+                if (npQX[iv][iw] == 1) and (not explored[iw]):
+                    explored[iw] = True
+                    q.put(iw)
+
+    return inbinMG
+
+#-------------------
+def sort_matrG_by_x(matrG, lX, lY, npQX):
     """
     matrG[x][y]
     lX[x]
@@ -111,33 +160,27 @@ def sort_matrG_by_x(matrG, lX, lY):
     inbinMG[](binY,kx),inlX[],inmatrMG[][]: binMG, lX, matrG
     """
     if TST in [1]: print(' sort_matrG_by_x')
-    inbinMG=[]
-    nX = len(lX)
-    nY = len(lY)
+#    inbinMG=[]
     if TST in [1]: print('matrG:',matrG)
     if TST in [1]: print('lX:',nX,lX)
     if TST in [1]: print('lY:',nY,lY)
+    if TST in [1]: print('npQX:',npQX)
+          
+    inbinMG = sort_BSF_x(npQX,matrG)
+    if TST in [1]: print('inbinMG:',inbinMG)
+    
+    nX = len(lX)
+    nY = len(lY)
+# sort lX, matrG  
     inlX = [-1 for i in range(nX) ]
-    inmatrMG = [ [0]*nY for i in range(nX) ]
-    
-    for kx in range(len(matrG)): #.keys():
-        binY=0
-        for ky in range(len(matrG[kx])):
-            if matrG[kx][ky] == 1:
-                binY += xbit(ky)
-        inbinMG.append((binY,kx))  
- 
-    if TST in [1]: print('inbinMG-bs:',binMG)
-# for connected graph!!!   inbinMG.sort()
-    if TST in [1]: print('inbinMG-as:',binMG)
-    
+    inmatrG = [ [0]*nY for i in range(nX) ]  
     for kx in range(len(inbinMG)):
        inlX[kx] = lX[inbinMG[kx][1]] 
-       inmatrMG[kx] = matrG[inbinMG[kx][1]]
+       inmatrG[kx] = matrG[inbinMG[kx][1]]
 
     if TST in [1]: print('inlX:',inlX)
-    if TST in [1]: print('inMG:',inMG)
-    return inbinMG, inlX, inmatrMG
+    if TST in [1]: print('inmatrMG:',inmatrG)
+    return inmatrG, inlX, inbinMG
 
 #-------------------
 def get_x_connection(indx, binMG):
@@ -409,38 +452,30 @@ def build_net_limits(dual,graph):
     lY=[]
     nY=0
 
-    lXold, lYold = gen_edjes(graph)
-
-    lX, lY = lXold, lYold
-            
+    lX, lY = gen_edjes(graph)
     nX=len(lX)
     nY=len(lY)
     if TST in [1]: print('lX:',nX,lX)
     if TST in [1]: print('lY:',nY,lY)
 
     matrG = [ [0]*nY for i in range(nX) ]
-#   matrG: [indX][indY]  -> 1 if x connect y
+#   matrG: [indX][indY] -> 1 if x connect y
     for keyX in graph.keys():
-        indX=lXold.index(keyX)
+        indX=lX.index(keyX)
         for y in graph[keyX]:
-            indY=lYold.index(y)
-            
+            indY=lY.index(y)
             matrG[indX][indY] = 1
 
     if TST in [1]: print('matrG:',matrG)
-
-    binMG, lX, matrG = sort_matrG_by_x(matrG, lX, lY)
+    npQX = set_npQX(matrG)
+    if TST in [1,4]: print('npQX:',npQX)
+    matrG, lX, binMG = sort_matrG_by_x(matrG, lX, lY, npQX)
     if TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
-    if TST in [1,4]: print('binMG:',binMG)#Tst1
-    if TST in [1,4]: print('lX:',nX,lX)#Tst1
     if TST in [1,4]: print('matrG:',matrG)#Tst1
+    if TST in [1,4]: print('lX:',nX,lX)#Tst1
+    if TST in [1,4]: print('binMG:',binMG)#Tst1
 
-    npMG = np.array(matrG)
-#Tst    print('npMG:',npMG)
-    npMX = np.dot(npMG, npMG.transpose())
-    #Tst print(' after np.dot')
-    #Tst print('npMX:',npMX)
-    npQX = np.minimum(npMX, 1)
+    npQX = set_npQX(matrG)
     if TST in [1,4]: print('npQX:',npQX)#Tst
 
     listR = []
@@ -484,7 +519,7 @@ def main(argv):
 
     fileName = argv[1]
     print(fileName)
-    
+# check filename for existence !    
     if len(sys.argv) > 2 :
         nMode = int(argv[2])
     else:
