@@ -1,14 +1,14 @@
-#BuildConstrains.py
-##The program for constructing all independent constraints for the values of flows at incoming and outgoing vertices, at which there is a solution to the distributive problem on a bipartite graph.
+# BuildConstrains.py #
+## The program for constructing all independent constraints for the values of flows at incoming and outgoing vertices, at which there is a solution to the distributive problem on a bipartite graph. ##
 
 The source graph data are entered by a csv text file without headers.
 The results are output as a set of inequalities between the values at the vertices for the main or dual graph.
 
-###Parameters
+### Parameters
 1. The name of the input file with the graph
 2. Operating mode (optional)
 
-###Parameters description
+### Parameters description
 1. The input file with the graph has a csv format without headers with a field separator character ',' and describes a bipartite graph (X,Y).
    In each line 
 	1st field: vertex name from X, 
