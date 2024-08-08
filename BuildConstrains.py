@@ -14,11 +14,148 @@ import numpy as np
 #fileName="graph3.csv"
 
 #print(fileName)
+#--------
+class Constants:
+    EMPTY_EL=-1
+    EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
+    TST=0
+    
+#--------
+#--------
+class Edge:
+    def __init__(self):
+        self.e:list = []
+        self.n:int = 0
+        
+    def append(self, v):
+        self.e.append(v)
+        
+    def len(self):
+        self.n = len(self.e)
+        return self.n
 
-EMPTY_EL=-1
-EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
+#--------        
+#--------
+class Graph:
+    def __init__(self):
+        self.dual:logical = False
+        self.lX:list = []
+        self.lY:list = []
+        self.nX = 0
+        self.nY = 0
+        self.gr:dict = dict()
+#--------        
+    def input(self, fileName):
 
-TST=0
+        with open(fileName, mode ='r') as csv_file:
+            fileReader = csv.reader(csv_file)
+            for row in fileReader:
+     #           print('row',row)
+                if len(row)==0: continue
+                self.gr[row[0]] = [row[i] for i in range(1, len(row))]
+
+     #   print()
+     #   print(graph)
+
+#--------
+    def gen_edges(self):
+        # geX=[]
+        # geY=[]
+        
+     #   print('graph_ge',graph)
+        for keyX in self.gr.keys():
+    #        print('keyX',keyX)
+            if not check_list(self.lX, keyX):
+                self.lX.append(keyX)
+            
+            for y in self.gr[keyX]:
+    #            print('y',y)
+                if not check_list(self.lY, y):
+                    self.lY.append(y)
+        
+    #    print('geX:',geX)
+    #    print('geY:',geY)
+
+#--------
+    def create_dual(self):
+        graph_dual = Graph()
+     
+        NON=-1
+        
+        for keyX in self.gr.keys(): # new y
+     #Tst        print('keyX',keyX)
+            
+            for y in self.gr[keyX]: # new x
+     #Tst            print('y',y)
+                if graph_dual.gr.get(y,NON) == NON :
+     #Tst                print('NON')
+                    graph_dual.gr[y] = []
+                    graph_dual.gr[y].append(keyX)
+                else:
+                    if not check_list(graph_dual.gr[y], keyX):
+     #Tst                    print('append')
+                        graph_dual.gr[y].append(keyX)
+                    else:
+                        pass #Error! Dupl edje
+            
+     #Tst2   print('graph_dual:',graph_dual.gr)
+        for key in graph_dual.gr.keys():
+            graph_dual.gr[key].sort()
+            
+        graph_dual.dual = True
+
+    #    print('graph_dual:',graph_dual.gr)
+        return graph_dual
+#--------
+    def build_net_limits(self):
+        """
+        graph: 
+        """
+    #Tst    print('dual:',self.dual)
+
+        self.gen_edges()
+        nX = len(self.lX)
+        nY = len(self.lY)
+        if Constants.TST in [1]: print('lX:',nX,self.lX)
+        if Constants.TST in [1]: print('lY:',nY,self.lY)
+
+        matrG = [ [0]*nY for i in range(nX) ]
+    #   matrG: [indX][indY] -> 1 if x connect y
+        for keyX in self.gr.keys():
+            indX=self.lX.index(keyX)
+            for y in self.gr[keyX]:
+                indY=self.lY.index(y)
+                matrG[indX][indY] = 1
+
+        if Constants.TST in [1]: print('matrG:',matrG)
+        npQX = set_npQX(matrG)
+        if Constants.TST in [1,4]: print('npQX:',npQX)
+        matrG, self.lX, binMG = sort_matrG_by_x(matrG, self.lX, self.lY, npQX)
+        if Constants.TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
+        if Constants.TST in [1,4]: print('matrG:',matrG)#Tst1
+        if Constants.TST in [1,4]: print('lX:',nX,lX)#Tst1
+        if Constants.TST in [1,4]: print('binMG:',binMG)#Tst1
+
+        npQX = set_npQX(matrG)
+        if Constants.TST in [1,4]: print('npQX:',npQX)#Tst
+
+        listR = []
+
+        listR = create_limits(npQX, binMG)
+        print_list_xy('listR',listR)
+
+        print_limits(listR, self.lX, self.lY, self.dual)
+
+#--------
+#--------
+class Limit:
+    pass
+
+class Limits:
+    def __init__(self):
+        pass
+    
+   
 
 #-------------------
 def int2BinStr(i):
@@ -38,20 +175,6 @@ def print_list_xy(prefix, list_xy):
     print(' '*len(prefix), lp)
 
 #-------------------
-def graph_input(fileName):
-    graph = dict()
-    with open(fileName, mode ='r') as csv_file:
-        fileReader = csv.reader(csv_file)
-        for row in fileReader:
- #           print('row',row)
-            if len(row)==0: continue
-            graph[row[0]] = [row[i] for i in range(1, len(row))]
-
- #   print()
- #   print(graph)
-    return graph 
-    
-#-------------------
 def check_list(l, e):
 #    print('lcl',l)
 #    print('e',e)
@@ -59,26 +182,6 @@ def check_list(l, e):
         if len(l)>0 and k==e: return True
     
     return False    
-
-#-------------------
-def gen_edjes(graph):
-    geX=[]
-    geY=[]
-    
- #   print('graph_ge',graph)
-    for keyX in graph.keys():
-#        print('keyX',keyX)
-        if not check_list(geX, keyX):
-            geX.append(keyX)
-        
-        for y in graph[keyX]:
-#            print('y',y)
-            if not check_list(geY, y):
-                geY.append(y)
-    
-#    print('geX:',geX)
-#    print('geY:',geY)
-    return geX, geY
 
 #-------------------
 def get_indx_in_col(e,matr,col):
@@ -160,18 +263,19 @@ def sort_matrG_by_x(matrG, lX, lY, npQX):
     -
     inbinMG[](binY,kx),inlX[],inmatrMG[][]: binMG, lX, matrG
     """
-    if TST in [1]: print(' sort_matrG_by_x')
-#    inbinMG=[]
-    if TST in [1]: print('matrG:',matrG)
-    if TST in [1]: print('lX:',nX,lX)
-    if TST in [1]: print('lY:',nY,lY)
-    if TST in [1]: print('npQX:',npQX)
-          
-    inbinMG = sort_BSF_x(npQX,matrG)
-    if TST in [1]: print('inbinMG:',inbinMG)
-    
     nX = len(lX)
     nY = len(lY)
+    if Constants.TST in [1]: print(' sort_matrG_by_x')
+#    inbinMG=[]
+    if Constants.TST in [1]: print('matrG:',matrG)
+    if Constants.TST in [1]: print('lX:',nX,lX)
+    if Constants.TST in [1]: print('lY:',nY,lY)
+    if Constants.TST in [1]: print('npQX:',npQX)
+          
+    inbinMG = sort_BSF_x(npQX,matrG)
+    if Constants.TST in [1]: print('inbinMG:',inbinMG)
+    
+
 # sort lX, matrG  
     inlX = [-1 for i in range(nX) ]
     inmatrG = [ [0]*nY for i in range(nX) ]  
@@ -179,8 +283,8 @@ def sort_matrG_by_x(matrG, lX, lY, npQX):
        inlX[kx] = lX[inbinMG[kx][1]] 
        inmatrG[kx] = matrG[inbinMG[kx][1]]
 
-    if TST in [1]: print('inlX:',inlX)
-    if TST in [1]: print('inmatrMG:',inmatrG)
+    if Constants.TST in [1]: print('inlX:',inlX)
+    if Constants.TST in [1]: print('inmatrMG:',inmatrG)
     return inmatrG, inlX, inbinMG
 
 #-------------------
@@ -191,7 +295,7 @@ def get_x_connection(indx, binMG):
     """
     x=xbit(indx)
     y=binMG[indx][0]
-    if TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Tst4
+    if Constants.TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Constants.TST4
     return ((x, y))
     
 #-------------------
@@ -204,7 +308,7 @@ def get_sorted_prev_connections(indx,npQX,binMG):
     -
     prev_connections[](xbit, ybit)
     """
-    if TST in [4]: print(' get_sorted_prev_connections')#Tst
+    if Constants.TST in [4]: print(' get_sorted_prev_connections')#Tst
 #Tst     print(f'npQX[{indx}]',npQX[indx])
     prev_connections=[]
     
@@ -212,7 +316,7 @@ def get_sorted_prev_connections(indx,npQX,binMG):
         if npQX[indx][i] == 1:
             prev_connections.append((xbit(i), binMG[i][0]))  # get_x_connection
     
-    if TST in [4]: print('indx,prev_connections',indx,prev_connections)#Tst
+    if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections)#Tst
     return prev_connections
 
 #-------------------
@@ -224,7 +328,7 @@ def get_prev_connected_limits(listLimits, xPrevConnections):
     -
     prev_limits[](xbit, ybit)
     """
-    if TST in [4]: print(' get_prev_connected_limits')#Tst
+    if Constants.TST in [4]: print(' get_prev_connected_limits')#Tst
 #Tst     print_list_xy('xPrevConnections',xPrevConnections)
 #Tst     print_list_xy('listLimits',listLimits)
     
@@ -236,7 +340,7 @@ def get_prev_connected_limits(listLimits, xPrevConnections):
             if listLimits[k][0] & xPrev > 0 :
                 prev_limits.append(listLimits[k])
           
-    if TST in [4]: print_list_xy('prev_limits',prev_limits)#Tst
+    if Constants.TST in [4]: print_list_xy('prev_limits',prev_limits)#Tst
     return prev_limits
     
 #-------------------
@@ -246,16 +350,16 @@ def add_xy_bits_to_prev(indx,binMG,xPrevLimitList):
     binMG[](bitY,kx)
     xPrevLimitList[](xbit, ybit)
     """
-    if TST in [4]: print(' add_xy_bits_to_prev')#Tst
-    if TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
     x=xbit(indx)
     y=binMG[indx][0]
-    if TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
+    if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
     
     for i in range(len(xPrevLimitList)):
         xPrevLimitList[i] = (xPrevLimitList[i][0] | x, xPrevLimitList[i][1] | y) 
     
-    if TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
     return xPrevLimitList
 
 #-------------------
@@ -264,30 +368,30 @@ def check_dupl_y_in_prev(xPrevLimitList):
     check and clear previous limits for duplicated y
     xPrevLimitList[](xbit, ybit)
     """
-    if TST in [4]: print(' check_dupl_y_in_prev')#Tst
-    if TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print(' check_dupl_y_in_prev')#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
     lenP = len(xPrevLimitList)
     
     for kp in range(lenP-1, -1, -1):
         yp = xPrevLimitList[kp][1]
-        if yp == EMPTY_TURTLE: continue
+        if yp == Constants.EMPTY_TURTLE: continue
         for kl in range(kp-1, -1, -1):
             if xPrevLimitList[kl][1] == yp:
                 xPrevLimitList[kp] = (xPrevLimitList[kp][0] | xPrevLimitList[kl][0], yp) 
-                xPrevLimitList[kl] = EMPTY_TURTLE    
+                xPrevLimitList[kl] = Constants.EMPTY_TURTLE    
 
 #!!!check_dupl_xy(xPrevLimitList)
 #   clear list
     
-    if TST in [4]: print_list_xy('xPrevLimitList-e',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList-e',xPrevLimitList)#Tst
     
 #   clear previous limits
 #   clear list 
     for kp in range (lenP-1, -1, -1):
-        if xPrevLimitList[kp] == EMPTY_TURTLE:
+        if xPrevLimitList[kp] == Constants.EMPTY_TURTLE:
             del xPrevLimitList[kp]
             
-    if TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
     return xPrevLimitList
 
 #-------------------
@@ -297,9 +401,9 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
     listLimits[](xbit, ybit)
     xPrevLimitList[](xbit, ybit)
     """
-    if TST in [4]: print(' check_prev_y_in_limits')#Tst
-    if TST in [4]: print_list_xy('xPrevLimitList',xPrevLimitList)#Tst
-    if TST in [4]: print_list_xy('listLimits-s',listLimits)#Tst
+    if Constants.TST in [4]: print(' check_prev_y_in_limits')#Tst
+    if Constants.TST in [4]: print_list_xy('xPrevLimitList',xPrevLimitList)#Tst
+    if Constants.TST in [4]: print_list_xy('listLimits-s',listLimits)#Tst+
     lenP = len(xPrevLimitList)
     lenL = len(listLimits)
     
@@ -308,19 +412,19 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
         for kl in range(lenL):
             if listLimits[kl][1] == yp:
                 xPrevLimitList[kp] = (xPrevLimitList[kp][0] | listLimits[kl][0], yp) 
-                listLimits[kl] = EMPTY_TURTLE
+                listLimits[kl] = Constants.EMPTY_TURTLE
 
 #!!!check_dupl_xy(xPrevLimitList)
                 
-    if TST in [4]: print_list_xy('listLimits-e',listLimits)#Tst            
+    if Constants.TST in [4]: print_list_xy('listLimits-e',listLimits)#Tst            
 
 #   clear limits 
 #   clear list               
     for kl in range (lenL-1, -1, -1):
-        if listLimits[kl] == EMPTY_TURTLE:
+        if listLimits[kl] == Constants.EMPTY_TURTLE:
             del listLimits[kl]
         
-    if TST in [4]: print_list_xy('listLimits-f',listLimits)  #Tst  
+    if Constants.TST in [4]: print_list_xy('listLimits-f',listLimits)  #Tst  
     return listLimits
 
 #-------------------
@@ -337,11 +441,11 @@ def create_limits(npQX, binMG):
 #Tst     print(' create_limits')
     listLimits = []
     for indx in range(len(npQX)):
-        if TST in [4]: print('indQX:',indx)
+        if Constants.TST in [4]: print('indQX:',indx)
         if indx == 0 :
             connection=get_x_connection(indx, binMG)
             listLimits.append(connection)
-            if TST in [4]: print_list_xy('after append listLimits',listLimits)
+            if Constants.TST in [4]: print_list_xy('after append listLimits',listLimits)
             continue
         else:
             xPrevConnections = get_sorted_prev_connections(indx,npQX,binMG)
@@ -352,36 +456,36 @@ def create_limits(npQX, binMG):
             
             connection=get_x_connection(indx, binMG)
             listLimits.append(connection)
-            if TST in [4]: print_list_xy('after append listLimits',listLimits)
+            if Constants.TST in [4]: print_list_xy('after append listLimits',listLimits)
             
             if len(xPrevLimitList) > 0 :
                 xPrevLimitList = add_xy_bits_to_prev(indx,binMG,xPrevLimitList)
                 xPrevLimitList = check_dupl_y_in_prev(xPrevLimitList)
                 listLimits = check_prev_y_in_limits(listLimits,xPrevLimitList)
                 listLimits.extend(xPrevLimitList)
-                if TST in [4]: print_list_xy('after extend listLimits',listLimits)
+                if Constants.TST in [4]: print_list_xy('after extend listLimits',listLimits)
                     
     return listLimits
 
 #-------------------
-def str_to_limit_side(prefix,bitStr,listEdjes):
+def str_to_limit_side(prefix,bitStr,listVertex):
     """
     prefix str
     bitStr
-    listEdjes[][edje, edjeIndxInLimit]
+    listVertex[][vertex, vertexIndxInLimit]
     """
    
     listBit = list(bitStr)
     listBit.reverse()
 #Tst3    print('listBit:',listBit)
-#Tst3    print('listEdjes:',listEdjes)
+#Tst3    print('listVertex:',listVertex)
     
     n = len(listBit)
     listS = []
     for i in range(n):
         if listBit[i] == '1' :
-            j=get_indx_in_col(i,listEdjes,1)
-            listS.append(listEdjes[j][0])
+            j=get_indx_in_col(i,listVertex,1)
+            listS.append(listVertex[j][0])
             
     listS.sort()
  #Tst3   print('listS:',listS) 
@@ -442,80 +546,7 @@ def print_limits(listR, lX, lY, dual):
         print(sl,'<=',sr)
 
 #-------------------
-def build_net_limits(dual,graph):
-    """
-    dual: logical
-    graph: 
-    """
-#Tst    print('dual:',dual)
-    lX=[]
-    nX=0
-    lY=[]
-    nY=0
 
-    lX, lY = gen_edjes(graph)
-    nX=len(lX)
-    nY=len(lY)
-    if TST in [1]: print('lX:',nX,lX)
-    if TST in [1]: print('lY:',nY,lY)
-
-    matrG = [ [0]*nY for i in range(nX) ]
-#   matrG: [indX][indY] -> 1 if x connect y
-    for keyX in graph.keys():
-        indX=lX.index(keyX)
-        for y in graph[keyX]:
-            indY=lY.index(y)
-            matrG[indX][indY] = 1
-
-    if TST in [1]: print('matrG:',matrG)
-    npQX = set_npQX(matrG)
-    if TST in [1,4]: print('npQX:',npQX)
-    matrG, lX, binMG = sort_matrG_by_x(matrG, lX, lY, npQX)
-    if TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
-    if TST in [1,4]: print('matrG:',matrG)#Tst1
-    if TST in [1,4]: print('lX:',nX,lX)#Tst1
-    if TST in [1,4]: print('binMG:',binMG)#Tst1
-
-    npQX = set_npQX(matrG)
-    if TST in [1,4]: print('npQX:',npQX)#Tst
-
-    listR = []
-
-    listR = create_limits(npQX, binMG)
-    print_list_xy('listR',listR)
-
-    print_limits(listR, lX, lY, dual)
-
-#-------------------
-def graph_create_dual(graph):
-    graph_dual = dict()
- 
-    NON=-1
-    
-    for keyX in graph.keys(): # new y
- #Tst        print('keyX',keyX)
-        
-        for y in graph[keyX]: # new x
- #Tst            print('y',y)
-            if graph_dual.get(y,NON) == NON :
- #Tst                print('NON')
-                graph_dual[y] = []
-                graph_dual[y].append(keyX)
-            else:
-                if not check_list(graph_dual[y], keyX):
- #Tst                    print('append')
-                    graph_dual[y].append(keyX)
-                else:
-                    pass #Error! Dupl edje
-        
- #Tst2   print('graph_dual:',graph_dual)
-    for key in graph_dual.keys():
-        graph_dual[key].sort()
-
-#    print('graph_dual:',graph_dual)
-    return graph_dual
-
-#-------------------
 def main(argv):
 
     fileName = argv[1]
@@ -532,21 +563,21 @@ def main(argv):
         nMode = 0
 
     print('mode:',nMode)
-    graph = dict()
+    graph = Graph()
 
-    graph = graph_input(fileName)
+    graph.input(fileName)
     #Tst print(' after graph_input')
-    print('graph:',graph)
+    print('graph:',graph.gr)
 
     if nMode in (0,1):
-        dual = False
-        build_net_limits(dual,graph)
+    #    dual = False
+        graph.build_net_limits()
 
     if nMode in (0,2):
-        dual = True
-        graph_dual = graph_create_dual(graph)
-        print('graph_dual:',graph_dual)
-        build_net_limits(dual,graph_dual)
+    #    dual = True
+        graph_dual = graph.create_dual()
+        print('graph_dual:',graph_dual.gr)
+        graph_dual.build_net_limits()
 
     if not nMode in (0,1,2):
         print('Invalid mode !',nMode)
