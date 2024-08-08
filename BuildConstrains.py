@@ -106,6 +106,7 @@ class Graph:
 
     #    print('graph_dual:',graph_dual.gr)
         return graph_dual
+
 #--------
     def build_net_limits(self):
         """
@@ -119,13 +120,7 @@ class Graph:
         if Constants.TST in [1]: print('lX:',nX,self.lX)
         if Constants.TST in [1]: print('lY:',nY,self.lY)
 
-        matrG = [ [0]*nY for i in range(nX) ]
-    #   matrG: [indX][indY] -> 1 if x connect y
-        for keyX in self.gr.keys():
-            indX=self.lX.index(keyX)
-            for y in self.gr[keyX]:
-                indY=self.lY.index(y)
-                matrG[indX][indY] = 1
+        matrG = self.set_matrG(nX,nY)
 
         if Constants.TST in [1]: print('matrG:',matrG)
         npQX = set_npQX(matrG)
@@ -144,8 +139,20 @@ class Graph:
         listR = create_limits(npQX, binMG)
         print_list_xy('listR',listR)
 
-        print_limits(listR, self.lX, self.lY, self.dual)
+        print_limits(listR, self)
 
+#--------
+    def set_matrG(self, nX, nY):
+        matrG = [ [0]*nY for i in range(nX) ]
+    #   matrG: [indX][indY] -> 1 if x connect y
+        for keyX in self.gr.keys():
+            indX=self.lX.index(keyX)
+            for y in self.gr[keyX]:
+                indY=self.lY.index(y)
+                matrG[indX][indY] = 1
+                
+        return matrG
+        
 #--------
 #--------
 class Limit:
@@ -176,20 +183,13 @@ def print_list_xy(prefix, list_xy):
 
 #-------------------
 def check_list(l, e):
-#    print('lcl',l)
+#    print('list',l)
 #    print('e',e)
     for k in l:
         if len(l)>0 and k==e: return True
     
     return False    
 
-#-------------------
-def get_indx_in_col(e,matr,col):
-    for k in range(len(matr)):
-        if matr[k][col]==e: return k
-    
-    return -1  
-    
 #-------------------
 def xbit(indx):
     return 2**indx # 1<<indx
@@ -205,7 +205,7 @@ def set_npQX(matrG):
     
     return npQX
     
-#-------------------
+#----------
 def set_binY(iv,matrG):
     binY=0
     for ky in range(len(matrG[iv])):
@@ -214,7 +214,7 @@ def set_binY(iv,matrG):
             
     return binY
 
-#-------------------
+#----------
 def sort_BSF_x(npQX,matrG):
 
 # BFS
@@ -254,14 +254,14 @@ def sort_BSF_x(npQX,matrG):
 
     return inbinMG
 
-#-------------------
+#----------
 def sort_matrG_by_x(matrG, lX, lY, npQX):
     """
     matrG[x][y]
     lX[x]
     lY[y]
     -
-    inbinMG[](binY,kx),inlX[],inmatrMG[][]: binMG, lX, matrG
+    inbinMG[(binY,kx)],inlX[],inmatrMG[][]: binMG, lX, matrG
     """
     nX = len(lX)
     nY = len(lY)
@@ -290,7 +290,7 @@ def sort_matrG_by_x(matrG, lX, lY, npQX):
 #-------------------
 def get_x_connection(indx, binMG):
     """
-    binMG[](bitY,kx)
+    binMG[(bitY,kx)]
     return (xbit, ybit)
     """
     x=xbit(indx)
@@ -298,13 +298,13 @@ def get_x_connection(indx, binMG):
     if Constants.TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Constants.TST4
     return ((x, y))
     
-#-------------------
+#----------
 def get_sorted_prev_connections(indx,npQX,binMG):
     """
-    It get previous connected vertexis  for current vertex 
+    It get previous connected vertexes  for current vertex 
     indx: int
     npQX[kx][kx]
-    binMG[](binY,kx)
+    binMG[(binY,kx)]
     -
     prev_connections[](xbit, ybit)
     """
@@ -319,7 +319,7 @@ def get_sorted_prev_connections(indx,npQX,binMG):
     if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections)#Tst
     return prev_connections
 
-#-------------------
+#----------
 def get_prev_connected_limits(listLimits, xPrevConnections):
     """
     for each prev connected vertex we get limits with it
@@ -343,12 +343,12 @@ def get_prev_connected_limits(listLimits, xPrevConnections):
     if Constants.TST in [4]: print_list_xy('prev_limits',prev_limits)#Tst
     return prev_limits
     
-#-------------------
+#----------
 def add_xy_bits_to_prev(indx,binMG,xPrevLimitList):
     """
     adding current x & y to each previous limit
-    binMG[](bitY,kx)
-    xPrevLimitList[](xbit, ybit)
+    binMG[(bitY,kx)]
+    xPrevLimitList[(xbit, ybit)]
     """
     if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
     if Constants.TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
@@ -362,11 +362,11 @@ def add_xy_bits_to_prev(indx,binMG,xPrevLimitList):
     if Constants.TST in [4]: print_list_xy('xPrevLimitList-f',xPrevLimitList)#Tst
     return xPrevLimitList
 
-#-------------------
+#----------
 def check_dupl_y_in_prev(xPrevLimitList):
     """
     check and clear previous limits for duplicated y
-    xPrevLimitList[](xbit, ybit)
+    xPrevLimitList[(xbit, ybit)]
     """
     if Constants.TST in [4]: print(' check_dupl_y_in_prev')#Tst
     if Constants.TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
@@ -398,8 +398,8 @@ def check_dupl_y_in_prev(xPrevLimitList):
 def check_prev_y_in_limits(listLimits,xPrevLimitList):
     """
     check and clear common limits for duplicated y by previous limits
-    listLimits[](xbit, ybit)
-    xPrevLimitList[](xbit, ybit)
+    listLimits[(xbit, ybit)]
+    xPrevLimitList[(xbit, ybit)]
     """
     if Constants.TST in [4]: print(' check_prev_y_in_limits')#Tst
     if Constants.TST in [4]: print_list_xy('xPrevLimitList',xPrevLimitList)#Tst
@@ -427,16 +427,16 @@ def check_prev_y_in_limits(listLimits,xPrevLimitList):
     if Constants.TST in [4]: print_list_xy('listLimits-f',listLimits)  #Tst  
     return listLimits
 
-#-------------------
+#----------
 def create_limits(npQX, binMG):
     """
     npQX[kx][kx]
     binMG[](bitY,kx)
     -
-    listLimits[](xbit, ybit)
-    xPrevConnections[](xbit, ybit)
+    listLimits[(xbit, ybit)]
+    xPrevConnections[(xbit, ybit)]
     connection (xbit, ybit)
-    xPrevLimitList[](xbit, ybit)
+    xPrevLimitList[(xbit, ybit)]
     """
 #Tst     print(' create_limits')
     listLimits = []
@@ -468,24 +468,31 @@ def create_limits(npQX, binMG):
     return listLimits
 
 #-------------------
-def str_to_limit_side(prefix,bitStr,listVertex):
+def get_lineIndx_by_val_in_col(matr,col,e):
+    for k in range(len(matr)):
+        if matr[k][col]==e: return k
+    
+    return -1  
+    
+#----------
+def edge_to_limit_side(prefix,bitStr,edge):
     """
     prefix str
     bitStr
-    listVertex[][vertex, vertexIndxInLimit]
+    edge[[vertex, vertexIndxInLimit]]
     """
    
     listBit = list(bitStr)
     listBit.reverse()
 #Tst3    print('listBit:',listBit)
-#Tst3    print('listVertex:',listVertex)
+#Tst3    print('edge:',edge)
     
     n = len(listBit)
     listS = []
     for i in range(n):
         if listBit[i] == '1' :
-            j=get_indx_in_col(i,listVertex,1)
-            listS.append(listVertex[j][0])
+            j=get_lineIndx_by_val_in_col(edge,1,i)
+            listS.append(edge[j][0])
             
     listS.sort()
  #Tst3   print('listS:',listS) 
@@ -501,7 +508,7 @@ def str_to_limit_side(prefix,bitStr,listVertex):
  #Tst3   print('s:',s)
     return s
 
-#-------------------
+#----------
 def sort_list_by_val(lst):
 
 #Tst3    print(' sort_list_by_val')
@@ -516,18 +523,21 @@ def sort_list_by_val(lst):
 #Tst3    print('lst_out-f:',lst_out)
     return lst_out
 
-#-------------------
-def print_limits(listR, lX, lY, dual):
+#----------
+def print_limits(listR, graph):
     """
     print limit in symbolic view
-    listR[](xbit, ybit)
+    listR[(xbit, ybit)]
     lX[x]
     lY[y]
     dual: logical
+    -
+    lXsort[[val, oldInd]]
+    lYsort[[val, oldInd]]
     """
         
-    lXsort = sort_list_by_val(lX)
-    lYsort = sort_list_by_val(lY)
+    lXsort = sort_list_by_val(graph.lX)
+    lYsort = sort_list_by_val(graph.lY)
     
     for l in listR:
 #Tst3        print('R:',l)
@@ -536,12 +546,12 @@ def print_limits(listR, lX, lY, dual):
         yb = int2BinStr(l[1])
 #Tst3        print('xa,yb:',xa,yb)
  
-        if dual:
-            sl = str_to_limit_side('b',xa,lXsort)
-            sr = str_to_limit_side('a',yb,lYsort)
+        if graph.dual:
+            sl = edge_to_limit_side('b',xa,lXsort)
+            sr = edge_to_limit_side('a',yb,lYsort)
         else:
-            sl = str_to_limit_side('a',xa,lXsort)
-            sr = str_to_limit_side('b',yb,lYsort)
+            sl = edge_to_limit_side('a',xa,lXsort)
+            sr = edge_to_limit_side('b',yb,lYsort)
         
         print(sl,'<=',sr)
 

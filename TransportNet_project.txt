@@ -16,7 +16,18 @@ listY[]
 MG[x][y] <0 | 1>
 MG -> MGbit[listX[indX_old]: y_bit] -> MGdec[listX[indX_old]: y_dec,indX_old] -> sort on y_dec -> MGdec[indX: y_dec,indX_old] -> 
 listX[indX: listX[indX_old]] 
-
+graph -> matrG -> npQX -> binMG -> listR
+matrG[x][y]
+npQX[kx][kx]
+binMG[(bitY,kx)]
+edge[[vertex, vertexIndxInLimit]]
+connection (xbit, ybit)
+xPrevConnections[(xbit, ybit)]
+xPrevLimitList[(xbit, ybit)]
+listLimits[(xbit, ybit)]
+listR[(xbit, ybit)]
+lXsort[[val, oldInd]]
+lYsort[[val, oldInd]]
 
 Graph.input() #+
 MG.create(Graph)	#+ MG[x][y] <0 | 1>
@@ -96,6 +107,17 @@ build_net_limits
 	np.minimum
 	create_limits
 	print_limits
+------------------------
+Objects:
+Graph
+        self.dual:logical = False
+        self.lX:list = []
+        self.lY:list = []
+        self.nX = 0
+        self.nY = 0
+        self.gr:dict = dict()
+Limits
+	print_limits(graph)		
 
 
 
