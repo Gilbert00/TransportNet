@@ -19,7 +19,7 @@ listX[indX: listX[indX_old]]
 graph -> matrG -> npQX -> binMG -> listR
 matrG[x][y]
 npQX[kx][kx]
-binMG[(bitY,kx)]
+binMG[(bitY,kxOld)]
 edge[[vertex, vertexIndxInLimit]]
 connection (xbit, ybit)
 xPrevConnections[(xbit, ybit)]

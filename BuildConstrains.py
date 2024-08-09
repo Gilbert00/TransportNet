@@ -120,18 +120,19 @@ class Graph:
         if Constants.TST in [1]: print('lX:',nX,self.lX)
         if Constants.TST in [1]: print('lY:',nY,self.lY)
 
-        matrG = self.set_matrG(nX,nY)
+        matrG:MatrG = self.set_matrG()
 
         if Constants.TST in [1]: print('matrG:',matrG)
-        npQX = set_npQX(matrG)
+        npQX = QX(matrG)
+        #print('npQX:',npQX.npQX)   #Tst
         if Constants.TST in [1,4]: print('npQX:',npQX)
-        matrG, self.lX, binMG = sort_matrG_by_x(matrG, self.lX, self.lY, npQX)
+        matrG, self.lX, binMG = matrG.sort_matrG_by_x(self.lX, self.lY, npQX)
         if Constants.TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
         if Constants.TST in [1,4]: print('matrG:',matrG)#Tst1
         if Constants.TST in [1,4]: print('lX:',nX,lX)#Tst1
         if Constants.TST in [1,4]: print('binMG:',binMG)#Tst1
 
-        npQX = set_npQX(matrG)
+        npQX = QX(matrG)
         if Constants.TST in [1,4]: print('npQX:',npQX)#Tst
 
         listR = []
@@ -142,27 +143,172 @@ class Graph:
         print_limits(listR, self)
 
 #--------
-    def set_matrG(self, nX, nY):
-        matrG = [ [0]*nY for i in range(nX) ]
+    def set_matrG(self): #, nX, nY):
+        matr = MatrG(len(self.lX),len(self.lY)) #[ [0]*nY for i in range(nX) ]
     #   matrG: [indX][indY] -> 1 if x connect y
         for keyX in self.gr.keys():
             indX=self.lX.index(keyX)
             for y in self.gr[keyX]:
                 indY=self.lY.index(y)
-                matrG[indX][indY] = 1
+                matr.set_el(indX, indY, 1) #matr.matrG[indX][indY] = 1
                 
-        return matrG
+        return matr
         
 #--------
 #--------
+class MatrG(list):
+    def __init__(self, nX, nY):
+        self.matrG = [ [0]*nY for i in range(nX) ] 
+        
+    def get_matr(self):
+        return self.matrG
+
+    def set_binY(self,iv):
+        binY=0
+        for ky in range(len(self.matrG[iv])):
+            if self.matrG[iv][ky] == 1:
+                binY += xbit(ky)
+                
+        return binY
+        
+    def get_row(self, kl):
+        return self.matrG[kl]
+        
+    def set_row(self, kl, low):
+        self.matrG[kl] = low
+        
+    def set_el(self, ix, iy, val): 
+        self.matrG[ix][iy] = val
+        
+    def sort_matrG_by_x(self, lX, lY, npQX):
+        """
+        matrG[x][y]
+        lX[x]
+        lY[y]
+        -
+        inbinMG[(binY,kx)],inlX[],inmatrMG[][]: binMG, lX, matrG
+        """
+        nX = len(lX)
+        nY = len(lY)
+        if Constants.TST in [1]: print(' sort_matrG_by_x')
+    #    inbinMG=[]
+        if Constants.TST in [1]: print('matrG:',matrG)
+        if Constants.TST in [1]: print('lX:',nX,lX)
+        if Constants.TST in [1]: print('lY:',nY,lY)
+        if Constants.TST in [1]: print('npQX:',npQX)
+        #print('npQX:',npQX.npQX)   #Tst   
+        inbinMG:BinMG = npQX.sort_BSF_x(self)
+        if Constants.TST in [1]: print('inbinMG:',inbinMG)
+        
+
+    # sort lX, matrG  
+        inlX = [-1 for i in range(nX) ]
+        inmatrG = MatrG(nX,nY) #[ [0]*nY for i in range(nX) ]  
+        for kx in range(inbinMG.len()):
+           kxOld = inbinMG.get_kxOld(kx)
+           inlX[kx] = lX[kxOld] 
+           inmatrG.set_row(kx, self.get_row(kxOld))
+
+        if Constants.TST in [1]: print('inlX:',inlX)
+        if Constants.TST in [1]: print('inmatrMG:',inmatrG)
+        return inmatrG, inlX, inbinMG
+
+
+#--------
+#--------
+class QX:
+    def __init__(self, matrG):
+        matr = matrG.get_matr()
+        self.npQX = QX.set_npQX(matr)
+        
+    def set_npQX(matr):
+        npMG = np.array(matr)
+        #Tst    print('npMG:',npMG)
+        npMX = np.dot(npMG, npMG.transpose())
+        #Tst print(' after np.dot')
+        #Tst print('npMX:',npMX)
+        npQX = np.minimum(npMX, 1)
+
+        return npQX
+        
+    def get_el(self,i,j):  
+        return self.npQX[i][j]
+        
+    def len(self):
+        return len(self.npQX)
+    
+    def sort_BSF_x(self, matrG:MatrG):
+
+# BFS
+# Вход: граф G = (V, E), представленный в виде списков смежности,
+# и вершина s из V.
+# Постусловие: вершина достижима из s тогда и только тогда,
+# когда она помечена как «разведанная».
+# 1) пометить s как разведанную вершину, все остальные как не-
+# разведанные
+# 2) Q := очередь, инициализированная вершиной s
+# 3) while Q не является пустой do
+# 4) удалить вершину из начала Q, назвать ее v
+# 5) for каждое ребро (v, w) в списке смежности v do
+# 6) if w не разведана then
+# 7) пометить w как разведанную
+# 8) добавить w в конец Q  
+        """
+        inbinMG[(binY,kx)]
+        """
+
+        q = queue.Queue()
+        #print('self.npQX',self.npQX) #Tst
+        #print('matrG:',matrG.matrG) #Tst
+        lenQX = len(self.npQX)
+        explored = [ False for i in range(lenQX) ]
+        inbinMG = BinMG(lenQX) #[ (-1,-1) for i in range(lenQX) ]
+        
+        ibin: int = 0
+        while ibin < lenQX:
+            istrt = ibin
+            explored[istrt] = True
+            q.put(istrt)
+            while not q.empty():
+                iv = q.get()
+                inbinMG.set_row(ibin, (matrG.set_binY(iv),iv))
+                ibin += 1
+                for iw in range(len(self.npQX[iv])):
+                    if (self.npQX[iv][iw] == 1) and (not explored[iw]):
+                        explored[iw] = True
+                        q.put(iw)
+
+        return inbinMG    
+#--------
+#--------
+class BinMG:
+    def __init__(self, ln):
+        self.binMG = [ (-1,-1) for i in range(ln) ]
+        
+    def get_kxOld(self, kx):
+        return self.binMG[kx][1]
+        
+    def get_y(self, kx):
+        return self.binMG[kx][0]
+        
+    def set_row(self, kx, val):
+        self.binMG[kx] = val
+        
+    def get_row(self, kx):
+        return self.binMG[kx]
+        
+    def len(self):
+        return len(self.binMG)
+
+#--------
+#--------         
 class Limit:
     pass
 
 class Limits:
     def __init__(self):
         pass
-    
-   
+     
 
 #-------------------
 def int2BinStr(i):
@@ -195,106 +341,13 @@ def xbit(indx):
     return 2**indx # 1<<indx
 
 #-------------------
-def set_npQX(matrG):
-    npMG = np.array(matrG)
-#Tst    print('npMG:',npMG)
-    npMX = np.dot(npMG, npMG.transpose())
-    #Tst print(' after np.dot')
-    #Tst print('npMX:',npMX)
-    npQX = np.minimum(npMX, 1)
-    
-    return npQX
-    
-#----------
-def set_binY(iv,matrG):
-    binY=0
-    for ky in range(len(matrG[iv])):
-        if matrG[iv][ky] == 1:
-            binY += xbit(ky)
-            
-    return binY
-
-#----------
-def sort_BSF_x(npQX,matrG):
-
-# BFS
-# Вход: граф G = (V, E), представленный в виде списков смежности,
-# и вершина s ∈ V.
-# Постусловие: вершина достижима из s тогда и только тогда,
-# когда она помечена как «разведанная».
-# 1) пометить s как разведанную вершину, все остальные как не-
-# разведанные
-# 2) Q := очередь, инициализированная вершиной s
-# 3) while Q не является пустой do
-# 4) удалить вершину из начала Q, назвать ее v
-# 5) for каждое ребро (v, w) в списке смежности v do
-# 6) if w не разведана then
-# 7) пометить w как разведанную
-# 8) добавить w в конец Q    
-
-    q = queue.Queue()
-
-    lenQX = len(npQX)
-    explored = [ False for i in range(lenQX) ]
-    inbinMG = [ (-1,-1) for i in range(lenQX) ]
-    
-    ibin: int = 0
-    while ibin < lenQX:
-        istrt = ibin
-        explored[istrt] = True
-        q.put(istrt)
-        while not q.empty():
-            iv = q.get()
-            inbinMG[ibin] = (set_binY(iv,matrG),iv)
-            ibin += 1
-            for iw in range(len(npQX[iv])):
-                if (npQX[iv][iw] == 1) and (not explored[iw]):
-                    explored[iw] = True
-                    q.put(iw)
-
-    return inbinMG
-
-#----------
-def sort_matrG_by_x(matrG, lX, lY, npQX):
-    """
-    matrG[x][y]
-    lX[x]
-    lY[y]
-    -
-    inbinMG[(binY,kx)],inlX[],inmatrMG[][]: binMG, lX, matrG
-    """
-    nX = len(lX)
-    nY = len(lY)
-    if Constants.TST in [1]: print(' sort_matrG_by_x')
-#    inbinMG=[]
-    if Constants.TST in [1]: print('matrG:',matrG)
-    if Constants.TST in [1]: print('lX:',nX,lX)
-    if Constants.TST in [1]: print('lY:',nY,lY)
-    if Constants.TST in [1]: print('npQX:',npQX)
-          
-    inbinMG = sort_BSF_x(npQX,matrG)
-    if Constants.TST in [1]: print('inbinMG:',inbinMG)
-    
-
-# sort lX, matrG  
-    inlX = [-1 for i in range(nX) ]
-    inmatrG = [ [0]*nY for i in range(nX) ]  
-    for kx in range(len(inbinMG)):
-       inlX[kx] = lX[inbinMG[kx][1]] 
-       inmatrG[kx] = matrG[inbinMG[kx][1]]
-
-    if Constants.TST in [1]: print('inlX:',inlX)
-    if Constants.TST in [1]: print('inmatrMG:',inmatrG)
-    return inmatrG, inlX, inbinMG
-
-#-------------------
 def get_x_connection(indx, binMG):
     """
     binMG[(bitY,kx)]
     return (xbit, ybit)
     """
     x=xbit(indx)
-    y=binMG[indx][0]
+    y=binMG.get_y(indx)
     if Constants.TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Constants.TST4
     return ((x, y))
     
@@ -313,8 +366,8 @@ def get_sorted_prev_connections(indx,npQX,binMG):
     prev_connections=[]
     
     for i in range(indx):
-        if npQX[indx][i] == 1:
-            prev_connections.append((xbit(i), binMG[i][0]))  # get_x_connection
+        if npQX.get_el(indx,i) == 1:
+            prev_connections.append((xbit(i), binMG.get_y(i)))  # get_x_connection
     
     if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections)#Tst
     return prev_connections
@@ -353,7 +406,7 @@ def add_xy_bits_to_prev(indx,binMG,xPrevLimitList):
     if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
     if Constants.TST in [4]: print_list_xy('xPrevLimitList-s',xPrevLimitList)#Tst
     x=xbit(indx)
-    y=binMG[indx][0]
+    y=binMG.get_y(indx)
     if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
     
     for i in range(len(xPrevLimitList)):
@@ -440,7 +493,7 @@ def create_limits(npQX, binMG):
     """
 #Tst     print(' create_limits')
     listLimits = []
-    for indx in range(len(npQX)):
+    for indx in range(npQX.len()):
         if Constants.TST in [4]: print('indQX:',indx)
         if indx == 0 :
             connection=get_x_connection(indx, binMG)
