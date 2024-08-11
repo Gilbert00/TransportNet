@@ -256,7 +256,7 @@ class MatrG(list):
         binY=0
         for ky in range(len(self.matrG[iv])):
             if self.matrG[iv][ky] == 1:
-                binY += xbit(ky)
+                binY += ibit(ky)
                 
         return binY
         
@@ -394,7 +394,7 @@ class BinMG:
         binMG[(bitY,kx)]
         return (xbit, ybit)
         """
-        x=xbit(indx)
+        x=ibit(indx)
         y=self.get_y(indx)
         if Constants.TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Constants.TST4
         return ((x, y))
@@ -415,7 +415,7 @@ class BinMG:
         
         for i in range(indx):
             if npQX.get_el(indx,i) == 1:
-                prev_connections.append((xbit(i), self.get_y(i)))  # get_x_connection
+                prev_connections.append(self.get_x_connection(i)) 
         
         if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections.get_list())#Tst
         return prev_connections
@@ -665,8 +665,8 @@ def int2BinStr(i):
     return bin(i)[2:]
     
 #-------------------
-def xbit(indx):
-    return 2**indx # 1<<indx
+def ibit(indx):
+    return 1<<indx  #2**indx # 
 
 #-------------------
 def main(argv):
