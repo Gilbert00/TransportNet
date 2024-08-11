@@ -19,20 +19,100 @@ class Constants:
     EMPTY_EL=-1
     EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
     TST=0
-    
+
 #--------
 #--------
-class Edge:
+class Matr:
     def __init__(self):
-        self.e:list = []
-        self.n:int = 0
+        self.matr:list = []
+
+    def len(self):
+        return len(self.matr)
         
     def append(self, v):
-        self.e.append(v)
+        self.matr.append(v) 
         
-    def len(self):
-        self.n = len(self.e)
-        return self.n
+    def sort(self):
+        self.matr.sort()
+
+    def get_lineIndx_by_val_in_col(self,col,e):
+        for k in range(len(self.matr)):
+            if self.matr[k][col]==e: return k
+        
+        return -1  
+ 
+    def check_list(l, e):
+#       print('list',l)
+#       print('e',e)
+        n=len(l)
+        if n==0 : return False
+        for k in l:
+            if k==e: return True
+        
+        return False     
+        
+#--------
+#--------
+class Edge(Matr):
+    def __init__(self):
+        super().__init__()
+                
+    # def append(self, v):
+        # self.super.append(v)
+        
+    # def len(self):
+        # return self.super.len()
+        
+    def get_vertex(self,k):
+        return self.matr[k][0]
+        
+    def edge_to_limit_side(self,prefix,bitStr):
+        """
+        prefix str
+        bitStr
+        edgeSorted[[vertex, vertexIndxInLimit]]
+        """
+       
+        listBit = list(bitStr)
+        listBit.reverse()
+    #Tst3    print('listBit:',listBit)
+    #Tst3    print('edge:',self.matr)
+        
+        n = len(listBit)
+        listS = []
+        for i in range(n):
+            if listBit[i] == '1' :
+                j = self.get_lineIndx_by_val_in_col(1,i)
+                listS.append(self.get_vertex(j))
+                
+        listS.sort()
+     #Tst3   print('listS:',listS) 
+        
+        s = ''
+        cnt = 0
+        for k in range(len(listS)):
+            if cnt > 0 :
+                s += ' + '   
+            s += prefix + listS[k]
+            cnt = cnt + 1
+                
+     #Tst3   print('s:',s)
+        return s
+        
+    def sort_list_by_val(lst):
+
+    #Tst3    print(' sort_list_by_val')
+        #lst_out: [][lst_el, old_indx]
+        lst_out=Edge()
+        for i in range(len(lst)):
+            lst_out.append([lst[i],i])
+        
+    #Tst3    print('lst_out-s:',lst_out)
+        lst_out.sort()
+        
+    #Tst3    print('lst_out-f:',lst_out)
+        return lst_out
+
 
 #--------        
 #--------
@@ -71,12 +151,12 @@ class Graph:
      #   print('graph_ge',graph)
         for keyX in self.gr.keys():
     #        print('keyX',keyX)
-            if not check_list(self.lX, keyX):
+            if not Matr.check_list(self.lX, keyX):
                 self.lX.append(keyX)
             
             for y in self.gr[keyX]:
     #            print('y',y)
-                if not check_list(self.lY, y):
+                if not Matr.check_list(self.lY, y):
                     self.lY.append(y)
         
     #    print('geX:',geX)
@@ -99,7 +179,7 @@ class Graph:
                     graph_dual.gr[y] = []
                     graph_dual.gr[y].append(keyX)
                 else:
-                    if not check_list(graph_dual.gr[y], keyX):
+                    if not Matr.check_list(graph_dual.gr[y], keyX):
      #Tst                    print('append')
                         graph_dual.gr[y].append(keyX)
                     else:
@@ -188,7 +268,7 @@ class MatrG(list):
         
     def set_el(self, ix, iy, val): 
         self.matrG[ix][iy] = val
-        
+               
     def sort_matrG_by_x(self, lX, lY, npQX):
         """
         matrG[x][y]
@@ -538,8 +618,8 @@ class Limits:
         lYsort[[val, oldInd]]
         """
             
-        lXsort = sort_list_by_val(graph.lX)
-        lYsort = sort_list_by_val(graph.lY)
+        lXsort = Edge.sort_list_by_val(graph.lX)    #!!!
+        lYsort = Edge.sort_list_by_val(graph.lY)    #!!!
         
  ##       for l in listR:
         for iR in range(self.len()):
@@ -554,11 +634,11 @@ class Limits:
     #Tst3        print('xa,yb:',xa,yb)
      
             if graph.get_dual():
-                sl = edge_to_limit_side('b',xa,lXsort)
-                sr = edge_to_limit_side('a',yb,lYsort)
+                sl = lXsort.edge_to_limit_side('b',xa)
+                sr = lYsort.edge_to_limit_side('a',yb)
             else:
-                sl = edge_to_limit_side('a',xa,lXsort)
-                sr = edge_to_limit_side('b',yb,lYsort)
+                sl = lXsort.edge_to_limit_side('a',xa)
+                sr = lYsort.edge_to_limit_side('b',yb)
             
             print(sl,'<=',sr)
 
@@ -580,15 +660,6 @@ class Limits:
         
 #-------------------
 #-------------------
-def check_list(l, e):
-#    print('list',l)
-#    print('e',e)
-    for k in l:
-        if len(l)>0 and k==e: return True
-    
-    return False    
-
-#-------------------
 def int2BinStr(i):
     return bin(i)[2:]
     
@@ -597,62 +668,6 @@ def xbit(indx):
     return 2**indx # 1<<indx
 
 #-------------------
-def get_lineIndx_by_val_in_col(matr,col,e):
-    for k in range(len(matr)):
-        if matr[k][col]==e: return k
-    
-    return -1  
-    
-#----------
-def edge_to_limit_side(prefix,bitStr,edgeSorted):
-    """
-    prefix str
-    bitStr
-    edgeSorted[[vertex, vertexIndxInLimit]]
-    """
-   
-    listBit = list(bitStr)
-    listBit.reverse()
-#Tst3    print('listBit:',listBit)
-#Tst3    print('edge:',edgeSorted)
-    
-    n = len(listBit)
-    listS = []
-    for i in range(n):
-        if listBit[i] == '1' :
-            j=get_lineIndx_by_val_in_col(edgeSorted,1,i)
-            listS.append(edgeSorted[j][0])
-            
-    listS.sort()
- #Tst3   print('listS:',listS) 
-    
-    s = ''
-    cnt = 0
-    for k in range(len(listS)):
-        if cnt > 0 :
-            s += ' + '   
-        s += prefix + listS[k]
-        cnt = cnt + 1
-            
- #Tst3   print('s:',s)
-    return s
-
-#----------
-def sort_list_by_val(lst):
-
-#Tst3    print(' sort_list_by_val')
-    #lst_out: [][lst_el, old_indx]
-    lst_out=[]
-    for i in range(len(lst)):
-        lst_out.append([lst[i],i])
-    
-#Tst3    print('lst_out-s:',lst_out)
-    lst_out.sort()
-    
-#Tst3    print('lst_out-f:',lst_out)
-    return lst_out
-
-#----------
 def main(argv):
 
     fileName = argv[1]
