@@ -530,9 +530,10 @@ class Limits:
         """
         if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-s')#Tst
-        x=xbit(indx)
-        y=binMG.get_y(indx)
-        if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
+        x,y = binMG.get_x_connection(indx)    
+        # x=xbit(indx)
+        # y=binMG.get_y(indx)
+        # if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
         
         for i in range(self.len()):
             self.limits[i] = (self.get_x(i) | x, self.get_y(i) | y) 
