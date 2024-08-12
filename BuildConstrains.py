@@ -121,12 +121,15 @@ class Graph:
         self.dual:logical = False
         self.lX:list = []
         self.lY:list = []
-        self.nX = 0
-        self.nY = 0
-        self.gr:dict = dict()
+        # self.nX = 0
+        # self.nY = 0
+        self.graph:dict = dict()
         
     def get_dual(self):
         return self.dual
+        
+    def get_graph(self):
+        return self.graph
         
 #-------- 
 # Graph
@@ -137,31 +140,26 @@ class Graph:
             for row in fileReader:
      #           print('row',row)
                 if len(row)==0: continue
-                self.gr[row[0]] = [row[i] for i in range(1, len(row))]
+                self.graph[row[0]] = [row[i] for i in range(1, len(row))]
 
      #   print()
-     #   print(graph)
+     #   print(self.graph)
 
 #--------
 # Graph
     def gen_edges(self):
-        # geX=[]
-        # geY=[]
         
-     #   print('graph_ge',graph)
-        for keyX in self.gr.keys():
+     #   print('graph_ge',self.graph)
+        for keyX in self.graph.keys():
     #        print('keyX',keyX)
             if not Matr.check_list(self.lX, keyX):
                 self.lX.append(keyX)
             
-            for y in self.gr[keyX]:
+            for y in self.graph[keyX]:
     #            print('y',y)
                 if not Matr.check_list(self.lY, y):
                     self.lY.append(y)
         
-    #    print('geX:',geX)
-    #    print('geY:',geY)
-
 #--------
 # Graph
     def create_dual(self):
@@ -169,29 +167,29 @@ class Graph:
      
         NON=-1
         
-        for keyX in self.gr.keys(): # new y
+        for keyX in self.graph.keys(): # new y
      #Tst        print('keyX',keyX)
             
-            for y in self.gr[keyX]: # new x
+            for y in self.graph[keyX]: # new x
      #Tst            print('y',y)
-                if graph_dual.gr.get(y,NON) == NON :
+                if graph_dual.graph.get(y,NON) == NON :
      #Tst                print('NON')
-                    graph_dual.gr[y] = []
-                    graph_dual.gr[y].append(keyX)
+                    graph_dual.graph[y] = []
+                    graph_dual.graph[y].append(keyX)
                 else:
-                    if not Matr.check_list(graph_dual.gr[y], keyX):
+                    if not Matr.check_list(graph_dual.graph[y], keyX):
      #Tst                    print('append')
-                        graph_dual.gr[y].append(keyX)
+                        graph_dual.graph[y].append(keyX)
                     else:
                         pass #Error! Dupl edje
             
-     #Tst2   print('graph_dual:',graph_dual.gr)
-        for key in graph_dual.gr.keys():
-            graph_dual.gr[key].sort()
+     #Tst2   print('graph_dual:',graph_dual.graph)
+        for key in graph_dual.graph.keys():
+            graph_dual.graph[key].sort()
             
         graph_dual.dual = True
 
-    #    print('graph_dual:',graph_dual.gr)
+    #    print('graph_dual:',graph_dual.graph)
         return graph_dual
 
 #--------
@@ -223,8 +221,6 @@ class Graph:
         npQX = QX(matrG)
         if Constants.TST in [1,4]: print('npQX:',npQX)#Tst
 
-        #listR = Limits()
-
         listR = Limits.create_limits(npQX, binMG)
         listR.print_list_xy('listR')
 
@@ -235,9 +231,9 @@ class Graph:
     def set_matrG(self): #, nX, nY):
         matr = MatrG(len(self.lX),len(self.lY)) #[ [0]*nY for i in range(nX) ]
     #   matrG: [indX][indY] -> 1 if x connect y
-        for keyX in self.gr.keys():
+        for keyX in self.graph.keys():
             indX=self.lX.index(keyX)
-            for y in self.gr[keyX]:
+            for y in self.graph[keyX]:
                 indY=self.lY.index(y)
                 matr.set_el(indX, indY, 1) #matr.matrG[indX][indY] = 1
                 
@@ -455,6 +451,13 @@ class Limits:
         
     def get_list(self):
         return self.limits
+        
+    def clear_limits(self):
+        lenLimits = self.len()
+        for k in range (lenLimits-1, -1, -1):
+            if self.get_row(k) == Constants.EMPTY_TURTLE:
+                self.delete(k)
+            
 #----------  
 # cls
     def create_limits(npQX, binMG):
@@ -531,15 +534,13 @@ class Limits:
         if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-s')#Tst
         x,y = binMG.get_x_connection(indx)    
-        # x=xbit(indx)
-        # y=binMG.get_y(indx)
-        # if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
+        if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
         
         for i in range(self.len()):
-            self.limits[i] = (self.get_x(i) | x, self.get_y(i) | y) 
+            self.set_row(i, (self.get_x(i) | x, self.get_y(i) | y)) 
         
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-f')#Tst
-    #    return xPrevLimitList
+    
 #----------
 # Limits
     def check_dupl_y_in_prev(self):
@@ -558,20 +559,15 @@ class Limits:
                 if self.get_y(kl) == yp:
                     self.set_row(kp, (self.get_x(kp) | self.get_x(kl), yp)) 
                     self.set_row(kl, Constants.EMPTY_TURTLE)    
-
-    #!!!check_dupl_xy(xPrevLimitList)
-    #   clear list
-        
+       
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-e')#Tst
         
     #   clear previous limits
     #   clear list 
-        for kp in range (lenP-1, -1, -1):
-            if self.get_row(kp) == Constants.EMPTY_TURTLE:
-                self.delete(kp)
+        self.clear_limits()
                 
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-f')#Tst
-#        return xPrevLimitList
+
 #----------
 # Limits
     def check_prev_y_in_limits(self,xPrevLimitList):
@@ -592,19 +588,15 @@ class Limits:
                 if self.get_y(kl) == yp:
                     xPrevLimitList.set_row(kp, (xPrevLimitList.get_x(kp) | self.get_x(kl), yp)) 
                     self.set_row(kl, Constants.EMPTY_TURTLE)
-
-    #!!!check_dupl_xy(xPrevLimitList)
                     
         if Constants.TST in [4]: self.print_list_xy('listLimits-e')#Tst            
 
     #   clear limits 
-    #   clear list               
-        for kl in range (lenL-1, -1, -1):
-            if self.get_row(kl) == Constants.EMPTY_TURTLE:
-                self.delete(kl)
+    #   clear list  
+        self.clear_limits()
             
         if Constants.TST in [4]: self.print_list_xy('listLimits-f')  #Tst  
-    #    return listLimits
+    
 #----------
 # Limits    
     def print_limits(self, graph):
@@ -619,16 +611,13 @@ class Limits:
         lYsort[[val, oldInd]]
         """
             
-        lXsort = Edge.sort_list_by_val(graph.lX)    #!!!
-        lYsort = Edge.sort_list_by_val(graph.lY)    #!!!
+        lXsort = Edge.sort_list_by_val(graph.lX)    
+        lYsort = Edge.sort_list_by_val(graph.lY)    
         
  ##       for l in listR:
         for iR in range(self.len()):
-#            l = self.get_row(iR)
-    #Tst3        print('R:',l)
             sl,sr = '',''
-            # xa = int2BinStr(l[0])
-            # yb = int2BinStr(l[1])
+
             xa = int2BinStr(self.get_x(iR))
             yb = int2BinStr(self.get_y(iR))
  #!!!           xa,yb = int2BinStr(self.get_row(iR))
@@ -689,7 +678,7 @@ def main(argv):
 
     graph.input(fileName)
     #Tst print(' after graph_input')
-    print('graph:',graph.gr)
+    print('graph:',graph.get_graph())
 
     if nMode in (0,1):
     #    dual = False
@@ -698,7 +687,7 @@ def main(argv):
     if nMode in (0,2):
     #    dual = True
         graph_dual = graph.create_dual()
-        print('graph_dual:',graph_dual.gr)
+        print('graph_dual:',graph_dual.get_graph())
         graph_dual.build_net_limits()
 
     if not nMode in (0,1,2):
