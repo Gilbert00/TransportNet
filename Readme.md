@@ -17,7 +17,7 @@ The results are output as a set of inequalities between the values at the vertic
    =1: constraints are built only for the main graph;
    =2: constraints are built only for the dual graph;
 
-###There are two program versions.
+### There are two program versions.
 
 * First version by procedures is in brunch main.
 * Second version by classes is in brunch oop.
