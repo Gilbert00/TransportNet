@@ -17,9 +17,76 @@ import numpy as np
 #--------
 class Constants:
     EMPTY_EL=-1
-    EMPTY_TURTLE=(EMPTY_EL,EMPTY_EL)
-    TST=0
+    TST=0 #!!!
 
+#--------
+#--------
+class Set(int):
+    
+    def __init__(self, ind=-1):
+        if ind == -1:
+            self.set:int = 0
+        else:
+            if not isinstance(ind, int): raise TypeError(f"Type of the {ind} isn't int !")
+            if ind < 0: raise ValueError(f"Value of the {ind} is negative ! ")
+            
+            self.set:int = 1<<ind
+            
+    def to_int(self):
+        return self.set
+    
+    def __or__(self, other):
+        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        out = Set()
+        out.set = self.set | other.set
+        return out
+
+    def __and__(self, other):
+        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        out = Set()
+        out.set = self.set & other.set
+        return out
+
+    def __invert__(self):
+#            if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        out = Set()
+        out.set = ~self.set
+        return out
+
+    def __eq__(self, other):
+#            if isinstance(other, int) and other==0:
+#                return self.set > other
+        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        return self.set == other.set
+
+    def __gt__(self, other):
+#            if isinstance(other, int) and other==0:
+#                return self.set > other
+        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        return self.set > other.set
+    
+    # def __ior__(self, other):
+        # if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        # self.set |= other.set        
+
+    def __iand__(self, other):
+        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
+        self.set &= other.set
+
+    def set2BinStr(self):   
+        return bin(self.set)[2:]
+        
+    def int2set(i):
+        out = Set()
+        out.set = i
+        return out
+        
+    def EMPTY_SET():
+        return Set()
+        
+    def EMPTY_TURTLE():
+        return ((Set.EMPTY_SET(),Set.EMPTY_SET()))
+                        
 #--------
 #--------
 class Matr:
@@ -208,18 +275,18 @@ class Graph:
 
         matrG:MatrG = self.set_matrG()
 
-        if Constants.TST in [1]: print('matrG:',matrG)
+        if Constants.TST in [1]: print('matrG:',matrG.get_matr())
         npQX = QX(matrG)
         #print('npQX:',npQX.npQX)   #Tst
-        if Constants.TST in [1,4]: print('npQX:',npQX)
+        if Constants.TST in [1,4]: print('npQX:',npQX.get_npQX())
         matrG, self.lX, binMG = matrG.sort_matrG_by_x(self.lX, self.lY, npQX)
         if Constants.TST in [1,4]: print(' after sort_matrG_by_x')#Tst1
-        if Constants.TST in [1,4]: print('matrG:',matrG)#Tst1
-        if Constants.TST in [1,4]: print('lX:',nX,lX)#Tst1
-        if Constants.TST in [1,4]: print('binMG:',binMG)#Tst1
+        if Constants.TST in [1,4]: print('matrG:',matrG.get_matr())#Tst1
+        if Constants.TST in [1,4]: print('lX:',nX,self.lX)#Tst1
+        if Constants.TST in [1,4]: print('binMG:',binMG.get_list())#Tst1
 
         npQX = QX(matrG)
-        if Constants.TST in [1,4]: print('npQX:',npQX)#Tst
+        if Constants.TST in [1,4]: print('npQX:',npQX.get_npQX())#Tst
 
         listR = Limits.create_limits(npQX, binMG)
         listR.print_list_xy('listR')
@@ -249,11 +316,14 @@ class MatrG(list):
         return self.matrG
 
     def set_binY(self,iv):
-        binY=0
+        binY=Set()
+#        print('binY',type(binY))
         for ky in range(len(self.matrG[iv])):
             if self.matrG[iv][ky] == 1:
-                binY += ibit(ky)
-                
+#                print(f'Set({ky})',type(Set(ky)))
+                binY = binY | Set(ky)
+#                print('ky,binY:',ky,binY.to_int())
+#        print('binY:',binY.to_int())
         return binY
         
     def get_row(self, kl):
@@ -277,13 +347,12 @@ class MatrG(list):
         nY = len(lY)
         if Constants.TST in [1]: print(' sort_matrG_by_x')
     #    inbinMG=[]
-        if Constants.TST in [1]: print('matrG:',matrG)
+        if Constants.TST in [1]: print('matrG:',self.get_matr())
         if Constants.TST in [1]: print('lX:',nX,lX)
         if Constants.TST in [1]: print('lY:',nY,lY)
-        if Constants.TST in [1]: print('npQX:',npQX)
-        #print('npQX:',npQX.npQX)   #Tst   
+        if Constants.TST in [1]: print('npQX:',npQX.get_npQX())
         inbinMG:BinMG = npQX.sort_BSF_x(self)
-        if Constants.TST in [1]: print('inbinMG:',inbinMG)
+        if Constants.TST in [1]: print('inbinMG:',inbinMG.get_list())
         
 
     # sort lX, matrG  
@@ -295,7 +364,7 @@ class MatrG(list):
            inmatrG.set_row(kx, self.get_row(kxOld))
 
         if Constants.TST in [1]: print('inlX:',inlX)
-        if Constants.TST in [1]: print('inmatrMG:',inmatrG)
+        if Constants.TST in [1]: print('inmatrMG:',inmatrG.get_matr())
         return inmatrG, inlX, inbinMG
 
 #--------
@@ -314,6 +383,9 @@ class QX:
         npQX = np.minimum(npMX, 1)
 
         return npQX
+        
+    def get_npQX(self):  
+        return self.npQX       
         
     def get_el(self,i,j):  
         return self.npQX[i][j]
@@ -339,13 +411,15 @@ class QX:
         """
         inbinMG[(binY,kx)]
         """
-
+        #print(' sort_BSF_x')#Tst
+        
         q = queue.Queue()
-        #print('self.npQX',self.npQX) #Tst
-        #print('matrG:',matrG.matrG) #Tst
+        #print('self.npQX:',self.get_npQX()) #Tst
+        #print('matrG:',matrG.get_matr()) #Tst
         lenQX = len(self.npQX)
         explored = [ False for i in range(lenQX) ]
         inbinMG = BinMG(lenQX) #[ (-1,-1) for i in range(lenQX) ]
+        #print('inbinMG:',inbinMG.get_list())  #Tst
         
         ibin: int = 0
         while ibin < lenQX:
@@ -354,13 +428,18 @@ class QX:
             q.put(istrt)
             while not q.empty():
                 iv = q.get()
-                inbinMG.set_row(ibin, (matrG.set_binY(iv),iv))
+                y = matrG.set_binY(iv) #Tst
+                #print('y:',y.to_int(),y,type(y)) #Tst
+                #inbinMG.set_row(ibin, ((matrG.set_binY(iv),iv)))
+                inbinMG.set_row(ibin, (y.to_int(),iv)) #Tst
+                #inbinMG.set_row(ibin, [y,iv]) #Tst
                 ibin += 1
                 for iw in range(len(self.npQX[iv])):
                     if (self.npQX[iv][iw] == 1) and (not explored[iw]):
                         explored[iw] = True
                         q.put(iw)
 
+        #print('inbinMG:',inbinMG.get_list())  #Tst
         return inbinMG
         
 #--------
@@ -376,6 +455,7 @@ class BinMG:
         return self.binMG[kx][0]
         
     def set_row(self, kx, val):
+        #print('val:',val)
         self.binMG[kx] = val
         
     def get_row(self, kx):
@@ -383,6 +463,10 @@ class BinMG:
         
     def len(self):
         return len(self.binMG)
+        
+    def get_list(self):
+        return self.binMG
+        
 #---------- 
 # BinMG
     def get_x_connection(self, indx):
@@ -390,9 +474,9 @@ class BinMG:
         binMG[(bitY,kx)]
         return (xbit, ybit)
         """
-        x=ibit(indx)
-        y=self.get_y(indx)
-        if Constants.TST in [4]: print(' indx,x,y current:',indx,int2BinStr(x),int2BinStr(y))#Constants.TST4
+        x=Set(indx)
+        y=Set.int2set(self.get_y(indx))
+        if Constants.TST in [4]: print(' indx,x,y current:',indx,x.set2BinStr(),y.set2BinStr())#Constants.TST4 
         return ((x, y))
 #---------- 
 # BinMG
@@ -413,7 +497,7 @@ class BinMG:
             if npQX.get_el(indx,i) == 1:
                 prev_connections.append(self.get_x_connection(i)) 
         
-        if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections.get_list())#Tst
+        if Constants.TST in [4]: print('indx,prev_connections',indx,prev_connections.out_list())#Tst
         return prev_connections
 
 #--------
@@ -440,10 +524,10 @@ class Limits:
     def get_row(self, krow):
         return self.limits[krow]    
      
-    def get_x(self, krow):
+    def get_x(self, krow):  #->Set
         return self.limits[krow][0]
         
-    def get_y(self, krow):
+    def get_y(self, krow):  #->Set
         return self.limits[krow][1]
 
     def len(self):
@@ -452,10 +536,19 @@ class Limits:
     def get_list(self):
         return self.limits
         
+    def out_list(self):    
+        list_xy = []
+        for i in range(self.len()):
+            list_xy.append( ( self.get_x(i).to_int(), self.get_y(i).to_int() )  )    
+        return list_xy
+        
     def clear_limits(self):
         lenLimits = self.len()
         for k in range (lenLimits-1, -1, -1):
-            if self.get_row(k) == Constants.EMPTY_TURTLE:
+            row = self.get_row(k)
+            x = row[0]
+            y = row[1]
+            if x == Set.EMPTY_SET() and y == Set.EMPTY_SET():
                 self.delete(k)
             
 #----------  
@@ -518,7 +611,7 @@ class Limits:
             xPrev = xPrevConnections.get_x(i)
     #Tst         print('i,xPrev:',i,xPrev)
             for k in range(self.len()) :
-                if self.get_x(k) & xPrev > 0 :
+                if (self.get_x(k) & xPrev).to_int() > 0 :
                     prev_limits.append(self.get_row(k))
               
         if Constants.TST in [4]: prev_limits.print_list_xy('prev_limits')#Tst
@@ -534,7 +627,7 @@ class Limits:
         if Constants.TST in [4]: print(' add_xy_bits_to_prev')#Tst
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-s')#Tst
         x,y = binMG.get_x_connection(indx)    
-        if Constants.TST in [4]: print('indx,x,y:',indx,int2BinStr(x),int2BinStr(y))#Tst
+        if Constants.TST in [4]: print('indx,x,y:',indx,x.set2BinStr(),y.set2BinStr())#Tst 
         
         for i in range(self.len()):
             self.set_row(i, (self.get_x(i) | x, self.get_y(i) | y)) 
@@ -554,11 +647,11 @@ class Limits:
         
         for kp in range(lenP-1, -1, -1):
             yp = self.get_y(kp)
-            if yp == Constants.EMPTY_EL: continue
+            if yp == Set.EMPTY_SET(): continue
             for kl in range(kp-1, -1, -1):
                 if self.get_y(kl) == yp:
                     self.set_row(kp, (self.get_x(kp) | self.get_x(kl), yp)) 
-                    self.set_row(kl, Constants.EMPTY_TURTLE)    
+                    self.set_row(kl, Set.EMPTY_TURTLE())    
        
         if Constants.TST in [4]: self.print_list_xy('xPrevLimitList-e')#Tst
         
@@ -587,7 +680,7 @@ class Limits:
             for kl in range(lenL):
                 if self.get_y(kl) == yp:
                     xPrevLimitList.set_row(kp, (xPrevLimitList.get_x(kp) | self.get_x(kl), yp)) 
-                    self.set_row(kl, Constants.EMPTY_TURTLE)
+                    self.set_row(kl, Set.EMPTY_TURTLE())
                     
         if Constants.TST in [4]: self.print_list_xy('listLimits-e')#Tst            
 
@@ -618,9 +711,9 @@ class Limits:
         for iR in range(self.len()):
             sl,sr = '',''
 
-            xa = int2BinStr(self.get_x(iR))
-            yb = int2BinStr(self.get_y(iR))
- #!!!           xa,yb = int2BinStr(self.get_row(iR))
+            xa = self.get_x(iR).set2BinStr()     #
+            yb = self.get_y(iR).set2BinStr()     #
+ #!!!           xa,yb = set2BinStr(self.get_row(iR))
     #Tst3        print('xa,yb:',xa,yb)
      
             if graph.get_dual():
@@ -640,23 +733,17 @@ class Limits:
         list_xy[](xbin, ybin)
         """
         
-        list_xy = self.get_list()
-        print(prefix+':', list_xy)
-     
+        list_xy = []
         lp=[]
-        for i in range(len(list_xy)):
-            lp.append( (int2BinStr(list_xy[i][0]),int2BinStr(list_xy[i][1])) )
+        for i in range(self.len()):
+            list_xy.append( ( self.get_x(i).to_int(), self.get_y(i).to_int() )  )
+            lp.append( ( self.get_x(i).set2BinStr(), self.get_y(i).set2BinStr() ) )
+        
+        print(prefix+':', list_xy)
         print(' '*len(prefix), lp)
         
 #-------------------
 #-------------------
-def int2BinStr(i):
-    return bin(i)[2:]
-    
-#-------------------
-def ibit(indx):
-    return 1<<indx  #2**indx # 
-
 #-------------------
 def main(argv):
 
