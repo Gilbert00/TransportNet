@@ -19,5 +19,5 @@ The results are output as a set of inequalities between the values at the vertic
    
    
 ### There are two program versions.
-- First version by procedures is in brunch **main**.
-- Second version by classes is in brunch **oop**.
+- First version by procedures is in branch **main**.
+- Second version by classes is in branch **oop**.
