@@ -18,6 +18,7 @@ The results are output as a set of inequalities between the values at the vertic
    =2: constraints are built only for the dual graph;
    
    
-### There are two program versions.
-- First version by procedures is in branch **main**.
-- Second version by classes is in branch **oop**.
+### There are three program versions.
+- First version by Python3 procedures is in branch **main**.
+- Second version by Python3 classes is in branch **oop**.
+- Third version by Java-17 is in branch **java**.
