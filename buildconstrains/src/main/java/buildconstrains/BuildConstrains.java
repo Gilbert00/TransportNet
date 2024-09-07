@@ -520,6 +520,44 @@ class Limits {
         if (Constants.check_TST(new int[]{4})) this.print_list_xy("listLimits-f");  //Tst  
     }
 //#----------
+//# Limits 
+   static Limits build_net_limits(Graph graph) {
+    //    """
+    //    graph: 
+    //    """
+    //Tst    System.out.println('dual:',self.dual)
+
+        graph.gen_sides();
+        int nX = graph.lX.size();
+        int nY = graph.lY.size();
+        if(Constants.check_TST(new int[]{1})) System.out.println("lX: "+nX+" "+graph.lX);
+        if(Constants.check_TST(new int[]{1})) System.out.println("lY: "+nY+" "+graph.lY);
+
+        MatrG matrG = graph.set_matrG();
+
+        if (Constants.check_TST(new int[]{1})) System.out.printf("matrG: %s%n",matrG.get_matr());
+        QX npQX = new QX(matrG);
+        //#System.out.println('npQX:',npQX.npQX)   //Tst
+        if (Constants.check_TST(new int[]{1,4})) System.out.printf("npQX: %s%n",npQX.get_npQX());
+        ParamsSortMatrG params = matrG.sort_matrG_by_x(graph.lX, graph.lY, npQX);
+        matrG = params.matrG;
+        graph.lX = params.lX;
+        BinMG binMG = params.binMG;
+        if (Constants.check_TST(new int[]{1,4})) System.out.println(" after sort_matrG_by_x");//Tst1
+        if (Constants.check_TST(new int[]{1,4})) System.out.printf("matrG: %s%n",matrG.get_matr());//Tst1
+        if (Constants.check_TST(new int[]{1,4})) System.out.printf("lX: %d %s%n",nX,graph.lX);//Tst1
+        if (Constants.check_TST(new int[]{1,4})) System.out.printf("binMG:  %s%n",binMG.get_list().toString());//Tst1
+
+        npQX = new QX(matrG);
+        if (Constants.check_TST(new int[]{1,4})) System.out.printf("npQX: %s%n",npQX.get_npQX());//Tst
+
+        Limits listR = Limits.create_limits(npQX, binMG);
+        listR.print_list_xy("listR");
+		
+		return listR;
+        //listR.print_limits(graph);
+}   
+//#----------
 //# Limits    
     void print_limits(Graph graph){
 /*         """
@@ -609,15 +647,19 @@ public class BuildConstrains {
     //Tst System.out.println(' after graph_input')
     System.out.printf("graph: %s%n",graph.get_graph());
 
+	Limits listR = null;
+	
     if (nMode==1 || nMode==0)
     //    dual = False
-        graph.build_net_limits();
+        listR = Limits.build_net_limits(graph);
+		listR.print_limits(graph);
 
     if (nMode==2 || nMode==0){
     //    dual = True
         Graph graph_dual = graph.create_dual();
         System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
-        graph_dual.build_net_limits();
+        listR = Limits.build_net_limits(graph_dual);
+		listR.print_limits(graph_dual);
     }
 
     if (!( nMode>=0 && nMode<=2))

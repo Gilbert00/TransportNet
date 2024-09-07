@@ -364,7 +364,7 @@ class Graph{
 //--------
 // Graph
         //@SuppressWarnings("empty-statement")
-    void build_net_limits() {
+ /*    void build_net_limits() {
     //    """
     //    graph: 
     //    """
@@ -398,7 +398,7 @@ class Graph{
         listR.print_list_xy("listR");
 
         listR.print_limits(this);
-}
+} */
 //--------
 // Graph
     MatrG set_matrG(){ // #, nX, nY):
