@@ -19,101 +19,6 @@ import java.util.LinkedHashMap;
 
 //--------
 //--------
-/* class VertexSet extends BitSet{
-//	protected BitSet set;
-    
-	VertexSet(){
-		super();	
-	}
-	
-    VertexSet(int len){
-		super(len);
-    }
-        
-	VertexSet(int len, int ind){
-//          if (ind < 0) throw new ValueError("Value of the " + ind + " is negative ! ");
-	    super(len);
-        super.set(1<<ind, true);	
-	}
-	
-    @Override
-    public int length(){
-         return super.length();
-    } 
-    
-    public long to_int(){
-	int n = super.length();
-        long s = 0;
-        for(int i=0; i<n; i++) {
-           if (super.get(i)) s += (1<<i);
-        }
-        return s;
-	}
-    
-//    @Override
-    public VertexSet vor(VertexSet other){
-        VertexSet out = (VertexSet) super.clone();
-        out.or(other);
-        return out;
-    }
-
-    public VertexSet vand(VertexSet other){
-        VertexSet out = (VertexSet) super.clone();
-        out.and(other);
-        return out;
-    }
-
-    public VertexSet invert(){
-        VertexSet out = (VertexSet) super.clone();
-        int n1 = out.length()-1;
-        out.flip(0, n1);
-        return out;
-    }
-    
-    public Boolean eq(VertexSet other){
-        return this.equals(other);
-    }
-
-    public Boolean gt(VertexSet other){
-        return this.to_int() > other.to_int();
-    }
-    
-/*     # def __ior__(self, other):
-        # if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
-        # self.set |= other.set        
-
-    def __iand__(self, other):
-        if not isinstance(other, Set): raise TypeError(f"Type of the {other} isn't Set !")
-        self.set &= other.set */
-
-/*     @Override
-    public String toString(){  
-        long n = this.to_int();
-        return Long.toBinaryString(n);
-    }
-    
-    public static VertexSet int2set(long k, int len){
-        VertexSet out = new VertexSet(len);
-        String str = Long.toBinaryString(k);
-		char[] array = str.toCharArray();
-		int lstr1 = array.length-1;
-		//if (lstr1+1 > len) Error!!!
-		for (int i = lstr1; i >= 0; i--) 
-			if (array[i]=='1') out.set(lstr1-i, true);
-        return out;
-    }
-        
-    public static VertexSet EMPTY_SET(){
-        return new VertexSet();
-    }
-        
-    public static VertexSet[] EMPTY_TURTLE(){
-        VertexSet es = EMPTY_SET();
-        VertexSet[] out = {es,es};
-        return out;
-    }
-}          */          
-
 class VertexSet {
     BigInteger vset;
 	int len;
@@ -339,10 +244,10 @@ class Graph{
                         for(int i=0; i<oldVal.size(); i++) {
                                 newVal.add(oldVal.get(i));
                         } */
-			ArrayList<String> newVal = new ArrayList<String>(graph_dual.graph.get(y));
-                        newVal.add(keyX);
-                        graph_dual.graph.replace(y,newVal);                        
-		}
+					ArrayList<String> newVal = new ArrayList<String>(graph_dual.graph.get(y));
+                    newVal.add(keyX);
+                    graph_dual.graph.replace(y,newVal);                        
+				}
                 //    else
                 //        pass #Error! Dupl edje
             }
@@ -361,44 +266,7 @@ class Graph{
 //    System.out.println('graph_dual:',graph_dual.graph)
         return graph_dual;
     }
-//--------
-// Graph
-        //@SuppressWarnings("empty-statement")
- /*    void build_net_limits() {
-    //    """
-    //    graph: 
-    //    """
-    //Tst    System.out.println('dual:',self.dual)
 
-        this.gen_sides();
-        int nX = this.lX.size();
-        int nY = this.lY.size();
-        if(Constants.check_TST(new int[]{1})) System.out.println("lX: "+nX+" "+this.lX);
-        if(Constants.check_TST(new int[]{1})) System.out.println("lY: "+nY+" "+this.lY);
-
-        MatrG matrG = this.set_matrG();
-
-        if (Constants.check_TST(new int[]{1})) System.out.printf("matrG: %s%n",matrG.get_matr());
-        QX npQX = new QX(matrG);
-        //#System.out.println('npQX:',npQX.npQX)   //Tst
-        if (Constants.check_TST(new int[]{1,4})) System.out.printf("npQX: %s%n",npQX.get_npQX());
-        ParamsSortMatrG params = matrG.sort_matrG_by_x(this.lX, this.lY, npQX);
-        matrG = params.matrG;
-        this.lX = params.lX;
-        BinMG binMG = params.binMG;
-        if (Constants.check_TST(new int[]{1,4})) System.out.println(" after sort_matrG_by_x");//Tst1
-        if (Constants.check_TST(new int[]{1,4})) System.out.printf("matrG: %s%n",matrG.get_matr());//Tst1
-        if (Constants.check_TST(new int[]{1,4})) System.out.printf("lX: %d %s%n",nX,this.lX);//Tst1
-        if (Constants.check_TST(new int[]{1,4})) System.out.printf("binMG:  %s%n",binMG.get_list().toString());//Tst1
-
-        npQX = new QX(matrG);
-        if (Constants.check_TST(new int[]{1,4})) System.out.printf("npQX: %s%n",npQX.get_npQX());//Tst
-
-        Limits listR = Limits.create_limits(npQX, binMG);
-        listR.print_list_xy("listR");
-
-        listR.print_limits(this);
-} */
 //--------
 // Graph
     MatrG set_matrG(){ // #, nX, nY):
