@@ -392,7 +392,7 @@ class Limits {
                 if (xPrevConnections.len() > 0) 
                     xPrevLimitList = listLimits.get_prev_connected_limits(xPrevConnections);
                 else //# First vertex in connected component
-                    xPrevLimitList = new Limits();
+                    xPrevLimitList = new Limits(); 
                 
                 connection = binMG.get_x_connection(indx);
                 listLimits.append(connection);

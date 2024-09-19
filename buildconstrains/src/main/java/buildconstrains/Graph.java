@@ -567,7 +567,7 @@ class BinMG extends ArrayList<BinMGRow> {
 //# BinMG
     Limits get_sorted_prev_connections(int indx, QX npQX) {
 /*         """
-        It get previous connected vertexes  for current vertex 
+        It gets previous connected vertexes for current vertex 
         indx: int
         npQX[kx][kx]
         binMG[(binY,kx)]
