@@ -1,3 +1,5 @@
+rem .\bc.cmd > bc.out
+
 set cp=./buildconstrains/target/classes
 D:
 cd \Develop0\TestTeX\TransportNet
