@@ -36,4 +36,4 @@ The results are output as a set of inequalities between the values at the vertic
 ### Output ###
 Mathematical expectation and average deviation of the network size.
    
-The SQLite database Transport Net.s3db and the temporary file FullNetTmp.csv are used.
+The SQLite database TransportNet.s3db and the temporary file FullNetTmp.csv are used.
