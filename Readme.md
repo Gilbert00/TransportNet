@@ -1,4 +1,5 @@
 # BuildConstrains.py #
+
 ## The program for constructing all independent constraints for the values of flows at incoming and outgoing vertices, at which there is a solution to the distributive problem on a bipartite graph. ##
 
 The source graph data are entered by a csv text file without headers.
@@ -25,6 +26,7 @@ The results are output as a set of inequalities between the values at the vertic
 
 
 #FullNet.java#
+
 ##The program for statistical analysis of the number of all independent constraints for flows in a network under which there is a solution to a distributive problem on a bipartite graph. All fixed-size networks are being investigated##
 
 ###Параметры###
