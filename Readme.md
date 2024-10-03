@@ -25,15 +25,15 @@ The results are output as a set of inequalities between the values at the vertic
 - Third version by Java-17 is in branch **java**.
 
 
-#FullNet.java#
+# FullNet.java #
 
-##The program for statistical analysis of the number of all independent constraints for flows in a network under which there is a solution to a distributive problem on a bipartite graph. All fixed-size networks are being investigated##
+## The program for statistical analysis of the number of all independent constraints for flows in a network under which there is a solution to a distributive problem on a bipartite graph. All fixed-size networks are being investigated ##
 
-###Параметры###
+### Parameters ###
 1. X Network components size
 2. Y Network components size
 
-###Результат###
+### Output ###
 Mathematical expectation and average deviation of the network size.
    
 The SQLite database Transport Net.s3db and the temporary file FullNetTmp.csv are used.
