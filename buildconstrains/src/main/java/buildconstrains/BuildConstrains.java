@@ -71,7 +71,7 @@ public class BuildConstrains {
 	
     if (nMode==1 || nMode==0) {
     //    dual = False
-        listR = Limits.build_net_limits(graph);
+        listR = Limits.build_net_limits(graph,true);
 		listR.print_limits(graph);
 	}
 
@@ -79,7 +79,7 @@ public class BuildConstrains {
     //    dual = True
         Graph graph_dual = graph.create_dual();
         System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
-        listR = Limits.build_net_limits(graph_dual);
+        listR = Limits.build_net_limits(graph_dual,true);
 		listR.print_limits(graph_dual);
     }
 

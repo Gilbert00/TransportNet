@@ -301,11 +301,17 @@ class ListXYStr extends ArrayList<VertexPairStr> {
 //#--------       
 class Limits {
 	ArrayList<Connection> limits;
+	//static boolean bNeedOut;
 	
     Limits() {
         this.limits = new ArrayList<Connection>();
+		//this.bNeedOut = true;
 	}
-        
+     
+/* 	void set_need_out(boolean bNeedOut) {
+		this.bNeedOut = bNeedOut;
+	} */
+		
     boolean append(Connection limit) {
         return this.limits.add(limit);
 	}
@@ -521,7 +527,7 @@ class Limits {
     }
 //#----------
 //# Limits 
-   static Limits build_net_limits(Graph graph) {
+   static Limits build_net_limits(Graph graph, boolean bNeedOut) {
     //    """
     //    graph: 
     //    """
@@ -552,7 +558,7 @@ class Limits {
         if (Constants.check_TST(new int[]{1,4})) System.out.printf("npQX: %s%n",npQX.get_npQX());//Tst
 
         Limits listR = Limits.create_limits(npQX, binMG);
-        listR.print_list_xy("listR");
+        if (bNeedOut) listR.print_list_xy("listR");
 		
 		return listR;
         //listR.print_limits(graph);
@@ -605,6 +611,8 @@ class Limits {
         prefix: str
         list_xy[](xbin, ybin)
         """ */
+//		if (! bNeedOut) return;
+		
         ListXY list_xy = new ListXY();
         ListXYStr lp = new ListXYStr();
         for(int i=0; i<this.len(); i++) {

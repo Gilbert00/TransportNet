@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 //import java.util.Hashtable;
 //import java.util.Map;
 import java.util.Arrays;
+import java.util.Random;
 //import java.util.ArrayList;
 //import java.util.Collections;
 //import java.util.Comparator;
@@ -27,6 +28,9 @@ import java.nio.file.Files;
 //import java.nio.file.Path;
 import java.nio.file.Paths;
 //import java.math.BigInteger;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
         
 /* #fileName="graph0.csv"
 #fileName="graph1.csv"
@@ -36,10 +40,74 @@ import java.nio.file.Paths;
 
 #System.out.println(fileName) */
 
+/* class OutToFile {
+    String fileName;
+	BufferedWriter writter;
+    
+    OutToFile(String name) {
+        fileName = name;
+		try {
+			writter = new BufferedWriter(new FileWriter(fileName));
+		}
+        catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
+	void out_str(String s){
+		try {
+			writter.write(s + "\n");
+		}
+        catch (IOException e) {
+			e.printStackTrace();
+		}	
+	}
+
+	void close() {
+		try {
+			writter.close();
+		}
+        catch (IOException e) {
+			e.printStackTrace();
+		}	
+	}
+} */
+
 //-------------------
 //-------------------
 public class RandomNets {
 
+    static void create_net_file(String fileName, int netSize) {
+        int upBound = (int)Math.pow(2,netSize) - 1;
+        final Random random = new Random();
+        
+        int currNetY;
+        String binNetY;
+        int lenBin;
+        int iX;
+        int iY;
+        int i,j;
+        String s;
+		final String formatInt = "%02d";
+		OutToFile file = new OutToFile(fileName);
+        for(i=0; i<netSize; i++) {
+            currNetY = random.nextInt(upBound) + 1;
+            binNetY = Integer.toBinaryString(currNetY); 
+            iX = i+1;
+            //s = Integer.toString(iX);
+			s = String.format(formatInt,iX);
+            lenBin = binNetY.length();
+            for(j=0; j<lenBin; j++) {
+                if(binNetY.charAt(j)=='1') {
+                    iY = j+1;
+                    s += "," + String.format(formatInt,iY);
+                }
+            }
+            file.out_str(s);
+        }
+		file.close();
+    }   
+    
  private static void main1(String[] argv){
 
 /*     String fileName = argv[0];
@@ -51,27 +119,29 @@ public class RandomNets {
         return;
     } */
     
-	int NetSize = Integer.parseInt(argv[1]);
-	int CyklCount = Integer.parseInt(argv[2]);
+	int NetSize = Integer.parseInt(argv[0]);
+	int CyklCount = Integer.parseInt(argv[1]);
 	
-	String fileName = "Test"; //!!!
+	String fileName = "Test.csv"; //!!!
 	
 /*     int nMode;
     if (argv.length > 1) 
-        nMode = Integer.parseInt(argv[3]);
+        nMode = Integer.parseInt(argv[2]);
     else
         nMode = 0; */
 	
 	if (argv.length > 2) 
-        Constants.set_TST(Integer.parseInt(argv[4]));
+        Constants.set_TST(Integer.parseInt(argv[3]));
 
     //System.out.printf("mode: %d%n",nMode);
 	
     Graph graph = null;
 	Graph graph_dual = null;
 
-	//!!!create_net_file(fileName, NetSize);
+	create_net_file(fileName, NetSize);
 
+	//return; //TST!!!
+	
 	graph = new Graph();
     graph.input(fileName);
     //Tst System.out.println(' after graph_input')
@@ -79,12 +149,14 @@ public class RandomNets {
 
 	Limits listR = null;
 	
-    //if (nMode==1 || nMode==0)
+    //if (nMode==1 || nMode==0) {
     //    dual = False
-        listR = Limits.build_net_limits(graph);
+        listR = Limits.build_net_limits(graph,false);
+		System.out.printf("listR len: %d%n",listR.len());
 	//	listR.print_limits(graph);
 	//!!!	listR.get_stat();
-
+	//}
+	
 /*     if (nMode==2 || nMode==0){
     //    dual = True
         graph_dual = graph.create_dual();
@@ -103,8 +175,8 @@ public class RandomNets {
     System.out.println(formatter.format(current));
 	
 	String className = MethodHandles.lookup().lookupClass().getSimpleName();
-    if (argv.length < 3){
-        System.out.println("Usage: " + className + " Input_File Net_Size Cykl_Count mode(?) TST(?)");
+    if (argv.length < 2){
+        System.out.println("Usage: " + className + " Net_Size Cykl_Count mode(?) TST(?)");
     }
     else {
         System.out.printf("%s.java %s%n",className,Arrays.toString(argv));
