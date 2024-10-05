@@ -109,13 +109,6 @@ class TransportNetDB extends DbHandler {
 		);		
 	}
 	
-	static void add_arc_to_db(int net, int x, int gx) throws SQLException {
-        //System.out.printf("%d %d %d%n", net, x, gx); //TST
-		Statement statement = DbHandler.connection.createStatement();
-		statement.execute("INSERT INTO 'GRAPH' ('i_net', 'x', 'gx') VALUES ("+net+","+x+","+gx+");");
-		//!!!commit();
-	}
-	
 	static void add_stat(Limits listR) throws SQLException {
 		//System.out.println(" add_stat"); //TST
 		int len = listR.len();
@@ -168,3 +161,27 @@ class TransportNetDB extends DbHandler {
 	}
 
 }	
+//-----
+class TransportNetPrepStmt{
+	TransportNetDB db;
+	Statement statement;
+	PreparedStatement prepStmnt;
+	ResultSet resultSet;		
+	
+	TransportNetPrepStmt(TransportNetDB db, String sql) throws SQLException {
+		this.db = db;
+		this.prepStmnt = db.connection.prepareStatement(sql);
+	}
+	
+	void add_arc_to_db(int net, int x, int gx) throws SQLException {
+        //System.out.printf("%d %d %d%n", net, x, gx); //TST
+		prepStmnt.setInt(1,net);
+		prepStmnt.setInt(2,x);
+		prepStmnt.setInt(3,gx);
+		prepStmnt.execute();
+	}
+	
+	void close() throws SQLException {
+		this.prepStmnt.close();
+	}
+}

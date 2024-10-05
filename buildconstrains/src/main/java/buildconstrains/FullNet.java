@@ -68,18 +68,22 @@ public class FullNet {
         
 		try {
 	//		TransportNetDB db = new TransportNetDB();
+	
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'GRAPH' ('i_net', 'x', 'gx') VALUES (?,?,?);");
 			
 			for (int i = 0; i < nX; i++) {
 				int t2 = (int) Math.pow(srcLength, i);
 				for (int p1 = 0; p1 < permutations;) {
 					for (int al = 0; al < srcLength; al++) {
 						for (int p2 = 0; p2 < t2; p2++) {
-							db.add_arc_to_db(p1, i+1, source[al]);
+							prepstmt.add_arc_to_db(p1, i+1, source[al]);
 							p1++;
 						}
 					}
 				}
-			}	
+			}
+			prepstmt.close();	
 		}
 		catch (SQLException e) {
             e.printStackTrace();
@@ -212,46 +216,15 @@ public class FullNet {
 	
 	final String fileName = "FullNetTmp.csv"; 
 	
-/*     int nMode;
-    if (argv.length > 1) 
-        nMode = Integer.parseInt(argv[2]);
-    else
-        nMode = 0; */
-	
 	if (argv.length > 2) 
         Constants.set_TST(Integer.parseInt(argv[3]));
 
 	main2(xSize,ySize);
 
-    //System.out.printf("mode: %d%n",nMode);
-	
-    //!!!Graph graph = null;
-	//!!!Graph graph_dual = null;
-
-	//!!!create_net_file(fileName, NetSize);
-
-	//return; //TST!!!
-	
-	//!!!graph = new Graph();
-    //!!!graph.input(fileName);
-    //Tst System.out.println(' after graph_input')
-    //!!!System.out.printf("graph: %s%n",graph.get_graph());
-
-	//!!!Limits listR = null;
-	
-    //if (nMode==1 || nMode==0) {
-    //    dual = False
-    //!!!    listR = Limits.build_net_limits(graph);
-	//!!!	System.out.printf("listR len: %d%n",listR.len());
-	//	listR.print_limits(graph);
-	//!!!	listR.get_stat();
-	//}
   }
 //-- 
   public static void main(String[] argv) {
-/*     Date current = new Date();
-    SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
-    System.out.println(formatter.format(current)); */
+
 	print_current_date();
 	
 	String className = MethodHandles.lookup().lookupClass().getSimpleName();
