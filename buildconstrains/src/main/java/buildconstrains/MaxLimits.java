@@ -38,12 +38,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.sqlite.JDBC;
-       
+        
 //-------------------
-public class FullNet {
+public class MaxLimits {
 	final static String fileName = "FullNetTmp.csv"; 
 	static OutToFile graphFile;
 	static int graph_count=0;
+	static int maxLimit;
 	
 	static Graph graph = null;
 	//static Graph graph_dual = null;
@@ -52,7 +53,6 @@ public class FullNet {
 		TransportNetDB db = null;
 		try {
 			db = new TransportNetDB();
-			db.clear();
 		}
 		catch (SQLException e) {
             e.printStackTrace();
@@ -61,7 +61,7 @@ public class FullNet {
 		return db;
 	}
 	
-	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
+/* 	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
         int srcLength = source.length;
         int permutations = (int) Math.pow(srcLength, nX);
         System.out.printf("nX,nY,ng,nNet: %d,%d,%d,%d%n", nX,variationLength,srcLength,permutations);//TST
@@ -84,7 +84,7 @@ public class FullNet {
 		catch (SQLException e) {
             e.printStackTrace();
         }
-    }	
+    }	 */
  
 	static void read_all_graphs(TransportNetDB db) {
 		try {
@@ -129,7 +129,7 @@ public class FullNet {
 			close_graph_file();
 			do_one_graph(db);
 			
-			db.get_limits_stat();
+//			db.get_limits_stat();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -176,12 +176,19 @@ public class FullNet {
 		Limits listR = null;
 	
 		listR = Limits.build_net_limits(graph,false);
-	//!!!	System.out.printf("listR len: %d%n",listR.len());
+		int len = listR.len();
+		if (len >= MaxLimits.maxLimit) {
+			System.out.printf("graph: %s%n",graph.get_graph());
+			//System.out.printf("listR len: %d%n",listR.len());
+			listR.print_list_xy("listR");
+			MaxLimits.graph_count++;
+			System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST			
+		}
 	//	listR.print_limits(graph);
-		db.add_stat(listR);	
+		//db.add_stat(listR);	
 
-		FullNet.graph_count++;
-		System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
+//		MaxLimits.graph_count++;
+//		System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST
 	}
  
 	static void print_current_date() {
@@ -191,14 +198,17 @@ public class FullNet {
 	}
  
     static void main2(int nx, int ny) {
-		int ng = (int) Math.pow(2, ny) - 1;
+		
+		MaxLimits.maxLimit = (int)Math.pow(2,nx)-1;
+
+		int ng = (int)Math.pow(2, ny) - 1;
 		int[] g = new int[ng];
 		
 		for(int i=0; i<ng; i++) g[i] = i+1;
 		
 		TransportNetDB db = open_db();
 
-        setVariations(db,g,nx,ny);
+//        setVariations(db,g,nx,ny);
 		
 		read_all_graphs(db);
 		do_all_graphs(db);
@@ -208,50 +218,18 @@ public class FullNet {
 
 	int xSize = Integer.parseInt(argv[0]);
 	int ySize = Integer.parseInt(argv[1]);
-//	int CyklCount = Integer.parseInt(argv[2]);
 	
-	final String fileName = "FullNetTmp.csv"; 
-	
-/*     int nMode;
-    if (argv.length > 1) 
-        nMode = Integer.parseInt(argv[2]);
-    else
-        nMode = 0; */
+	final String fileName = "MaxLimitsTmp.csv"; 
 	
 	if (argv.length > 2) 
         Constants.set_TST(Integer.parseInt(argv[3]));
+	
+	//this.maxLimit = (int)Math.pow(2,xSize)-1;
 
 	main2(xSize,ySize);
-
-    //System.out.printf("mode: %d%n",nMode);
-	
-    //!!!Graph graph = null;
-	//!!!Graph graph_dual = null;
-
-	//!!!create_net_file(fileName, NetSize);
-
-	//return; //TST!!!
-	
-	//!!!graph = new Graph();
-    //!!!graph.input(fileName);
-    //Tst System.out.println(' after graph_input')
-    //!!!System.out.printf("graph: %s%n",graph.get_graph());
-
-	//!!!Limits listR = null;
-	
-    //if (nMode==1 || nMode==0) {
-    //    dual = False
-    //!!!    listR = Limits.build_net_limits(graph);
-	//!!!	System.out.printf("listR len: %d%n",listR.len());
-	//	listR.print_limits(graph);
-	//!!!	listR.get_stat();
-	//}
   }
 //-- 
   public static void main(String[] argv) {
-/*     Date current = new Date();
-    SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
-    System.out.println(formatter.format(current)); */
 	print_current_date();
 	
 	String className = MethodHandles.lookup().lookupClass().getSimpleName();

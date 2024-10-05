@@ -124,9 +124,14 @@ buildconstrains.BuildConstrains
 graph304.csv 1 0
 D:\Develop0\TestTeX\TransportNet
 ----------------------------
+buildconstrains.FullNet
+3 4
+----------------------------
+buildconstrains.MaxLimits
+2 3
+----------------------------
 buildconstrains.RandomNets
 4 10
-
 
 ------------------------
 0
