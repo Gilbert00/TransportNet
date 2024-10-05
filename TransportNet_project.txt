@@ -803,11 +803,11 @@ BUILD SUCCESS
 Total time:  2.289 s
 Finished at: 2024-09-19T13:14:02+03:00
 ------------------------------------------------------------------------
-CREATE TABLE R_STAT (
+CREATE TABLE if not exists R_STAT (
     len   INTEGER PRIMARY KEY,
     count INTEGER
 );
-CREATE TABLE GRAPH (
+CREATE TABLE if not exists GRAPH (
     i_net INTEGER,
     x     INTEGER (2),
     gx    INTEGER,
@@ -818,7 +818,7 @@ CREATE TABLE GRAPH (
 );
 PRAGMA foreign_keys = 1;
 
-CREATE TABLE STATE (
+CREATE TABLE if not exists STATE (
     state INTEGER (2),
     i_net INTEGER
 );

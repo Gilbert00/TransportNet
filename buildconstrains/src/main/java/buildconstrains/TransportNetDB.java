@@ -41,13 +41,13 @@ import org.sqlite.JDBC;
         
 //-----
 class DbHandler {
-	final static String dbFile = "TEST1.s3db";
+	final static String dbFile = "TransportNet.s3db";
 	//public static Connection conn;
 	public static Statement statement;
 	public static PreparedStatement prepStmnt;
 	public static ResultSet resultSet;	
 //-----------	
-	private static final String CON_STR = "jdbc:sqlite:TransportNet.s3db";
+	private static final String CON_STR = "jdbc:sqlite:"+dbFile;
 	private static DbHandler instance = null;
 	static Connection connection;
 	
@@ -75,15 +75,39 @@ class DbHandler {
 
 //-----
 class TransportNetDB extends DbHandler {
-	//TO-DO: db clearing
-	//TO-DO: db init
+	//DONE: db clearing
+	//DONE: db create
     TransportNetDB() throws SQLException{
+	//	check_existence_db();
 		super.getInstance();
+		create_tables();
 	}
 	
 /* 	static void commit() {
 		super.commit();
 	} */
+
+	static void create_tables() throws SQLException {
+        //System.out.printf(" create_tables"); //TST
+		Statement statement = DbHandler.connection.createStatement();
+		statement.execute("CREATE TABLE if not exists GRAPH ("+
+			"i_net INTEGER, "+
+			"x     INTEGER (2), "+
+			"gx    INTEGER, "+
+			"CONSTRAINT U_IX UNIQUE (i_net ASC,	x ASC)"+
+			");"
+		);
+		statement.execute("CREATE TABLE if not exists R_STAT ("+
+			"len   INTEGER PRIMARY KEY, "+
+			"count INTEGER "+
+			");"
+		);
+		statement.execute("CREATE TABLE if not exists STATE ("+
+			"state INTEGER (2), "+
+			"i_net INTEGER "+
+			");"
+		);		
+	}
 	
 	static void add_arc_to_db(int net, int x, int gx) throws SQLException {
         //System.out.printf("%d %d %d%n", net, x, gx); //TST
