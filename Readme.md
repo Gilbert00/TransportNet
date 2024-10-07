@@ -1,4 +1,5 @@
 # BuildConstrains.py #
+# BuildConstrains.java #
 
 ## The program for constructing all independent constraints for the values of flows at incoming and outgoing vertices, at which there is a solution to the distributive problem on a bipartite graph. ##
 

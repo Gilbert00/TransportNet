@@ -117,6 +117,11 @@ public class FullNet {
 		try {
 			Statement statement = db.connection.createStatement();
 			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+			
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
+				"UPDATE SET count=count+1 WHERE len=?;");
+						
 			while(resultSet.next()) {
 				i_net = resultSet.getInt("i_net");
 				//System.out.printf("i_net_old i_net: %d %d%n", i_net_old,i_net); //TST
@@ -124,7 +129,7 @@ public class FullNet {
 				if (i_net != i_net_old){
 					if (i_net_old != EMPTY_NET) {
 						close_graph_file();
-						do_one_graph(db);
+						do_one_graph(db,prepstmt);
 					}
 					set_new_graph_file();
 					i_net_old = i_net;
@@ -136,10 +141,11 @@ public class FullNet {
 				out_graph_str(x,gx);
 			}
 			close_graph_file();
-			do_one_graph(db);
+			do_one_graph(db,prepstmt);
 			System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
 			resultSet.close();
 			statement.close();
+			prepstmt.close();
 			
 			db.get_limits_stat();
 		}
@@ -178,7 +184,7 @@ public class FullNet {
 		FullNet.graphFile.out_str(s);
 	}
  
-	static void do_one_graph(TransportNetDB db) throws SQLException {
+	static void do_one_graph(TransportNetDB db, TransportNetPrepStmt prepstmt) throws SQLException {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
 		graph.input(fileName);
@@ -190,7 +196,7 @@ public class FullNet {
 		listR = Limits.build_net_limits(graph,false);
 	//!!!	System.out.printf("listR len: %d%n",listR.len());
 	//	listR.print_limits(graph);
-		db.add_stat(listR);	
+		prepstmt.add_stat(listR);	
 
 		FullNet.graph_count++;
 		//System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST

@@ -127,7 +127,7 @@ class TransportNetDB extends DbHandler {
 		statement.close();
 	}
 	
-	static void add_stat(Limits listR) throws SQLException {
+/* 	static void add_stat(Limits listR) throws SQLException {
 		//System.out.println(" add_stat"); //TST
 		int len = listR.len();
 		//System.out.printf("listR.len: %d%n", len);
@@ -136,7 +136,7 @@ class TransportNetDB extends DbHandler {
 				"UPDATE SET count=count+1 WHERE len="+len+";");
 		//!!!commit();
 		statement.close();
-	}
+	} */
 	
 	static void get_limits_stat() throws SQLException {
 		System.out.println(" get_limits_stat"); //TST
@@ -216,6 +216,16 @@ class TransportNetPrepStmt{
 		prepStmt.setInt(2,x);
 		prepStmt.setInt(3,gx);
 		prepStmt.execute();
+	}
+	
+	void add_stat(Limits listR) throws SQLException {
+		//System.out.println(" add_stat"); //TST
+		int len = listR.len();
+		//System.out.printf("listR.len: %d%n", len);
+		prepStmt.setInt(1,len);
+		prepStmt.setInt(2,len);
+		prepStmt.execute();
+		//!!!commit();
 	}
 	
 	void close() throws SQLException {
