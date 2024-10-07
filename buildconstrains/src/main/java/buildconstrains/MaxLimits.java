@@ -88,7 +88,7 @@ public class MaxLimits {
  
 	static void read_all_graphs(TransportNetDB db) {
 		try {
-			db.resultSet = db.statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+			db.resultSetDH = db.statementDH.executeQuery("select i_net,x,gx from graph order by 1,2");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -108,8 +108,8 @@ public class MaxLimits {
 		print_current_date();
 		//set_new_graph_file();
 		try {
-			while(db.resultSet.next()) {
-				i_net = db.resultSet.getInt("i_net");
+			while(db.resultSetDH.next()) {
+				i_net = db.resultSetDH.getInt("i_net");
 				//System.out.printf("i_net_old i_net: %d %d%n", i_net_old,i_net); //TST
 				
 				if (i_net != i_net_old){
@@ -121,8 +121,8 @@ public class MaxLimits {
 					i_net_old = i_net;
 				}
 				
-				x = db.resultSet.getInt("x");
-				gx = db.resultSet.getInt("gx");	
+				x = db.resultSetDH.getInt("x");
+				gx = db.resultSetDH.getInt("gx");	
 				//System.out.printf("x gx: %d %d%n", x,gx); //TST				
 				out_graph_str(x,gx);
 			}

@@ -37,6 +37,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.sqlite.JDBC;
        
 //-------------------
@@ -64,6 +66,7 @@ public class FullNet {
 	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
         int srcLength = source.length;
         int permutations = (int) Math.pow(srcLength, nX);
+		System.out.println(" setVariations"); //TST
         System.out.printf("nX,nY,ng,nNet: %d,%d,%d,%d%n", nX,variationLength,srcLength,permutations);//TST
         
 		try {
@@ -90,14 +93,14 @@ public class FullNet {
         }
     }	
  
-	static void read_all_graphs(TransportNetDB db) {
+/* 	static void read_all_graphs(TransportNetDB db) {
 		try {
-			db.resultSet = db.statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+			db.resultSetDH = db.statementDH.executeQuery("select i_net,x,gx from graph order by 1,2");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
+	} */
 	
 	static void do_all_graphs(TransportNetDB db) {
 		final int EMPTY_NET = -1;
@@ -112,8 +115,10 @@ public class FullNet {
 		print_current_date();
 		//set_new_graph_file();
 		try {
-			while(db.resultSet.next()) {
-				i_net = db.resultSet.getInt("i_net");
+			Statement statement = db.connection.createStatement();
+			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+			while(resultSet.next()) {
+				i_net = resultSet.getInt("i_net");
 				//System.out.printf("i_net_old i_net: %d %d%n", i_net_old,i_net); //TST
 				
 				if (i_net != i_net_old){
@@ -125,13 +130,16 @@ public class FullNet {
 					i_net_old = i_net;
 				}
 				
-				x = db.resultSet.getInt("x");
-				gx = db.resultSet.getInt("gx");	
+				x = resultSet.getInt("x");
+				gx = resultSet.getInt("gx");	
 				//System.out.printf("x gx: %d %d%n", x,gx); //TST				
 				out_graph_str(x,gx);
 			}
 			close_graph_file();
 			do_one_graph(db);
+			System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
+			resultSet.close();
+			statement.close();
 			
 			db.get_limits_stat();
 		}
@@ -174,7 +182,7 @@ public class FullNet {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
 		graph.input(fileName);
-    //Tst System.out.println(' after graph_input')
+		//System.out.println(' after graph_input') //TST
 		//System.out.printf("graph: %s%n",graph.get_graph()); //TST
 
 		Limits listR = null;
@@ -185,7 +193,7 @@ public class FullNet {
 		db.add_stat(listR);	
 
 		FullNet.graph_count++;
-		System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
+		//System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
 	}
  
 	static void print_current_date() {
@@ -195,29 +203,35 @@ public class FullNet {
 	}
  
     static void main2(int nx, int ny) {
-		int ng = (int) Math.pow(2, ny) - 1;
-		int[] g = new int[ng];
 		
-		for(int i=0; i<ng; i++) g[i] = i+1;
-		
-		TransportNetDB db = open_db();
-
-        setVariations(db,g,nx,ny);
-		
-		read_all_graphs(db);
-		do_all_graphs(db);
+        try {
+            TransportNetDB db = open_db();
+            
+            if (! Constants.check_TST(new int[]{10})) {
+                int ng = (int) Math.pow(2, ny) - 1;
+                int[] g = new int[ng];
+                
+                for(int i=0; i<ng; i++) g[i] = i+1;
+                
+                setVariations(db,g,nx,ny);
+            }
+            //read_all_graphs(db);
+            do_all_graphs(db);
+            TransportNetDB.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(FullNet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
  
   private static void main1(String[] argv){
 
 	int xSize = Integer.parseInt(argv[0]);
 	int ySize = Integer.parseInt(argv[1]);
-//	int CyklCount = Integer.parseInt(argv[2]);
 	
 	final String fileName = "FullNetTmp.csv"; 
 	
 	if (argv.length > 2) 
-        Constants.set_TST(Integer.parseInt(argv[3]));
+        Constants.set_TST(Integer.parseInt(argv[2]));
 
 	main2(xSize,ySize);
 

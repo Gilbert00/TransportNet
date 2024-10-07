@@ -126,6 +126,7 @@ D:\Develop0\TestTeX\TransportNet
 ----------------------------
 buildconstrains.FullNet
 3 4
+4 6 10
 ----------------------------
 buildconstrains.MaxLimits
 2 3
@@ -805,7 +806,8 @@ Finished at: 2024-09-19T13:14:02+03:00
 ------------------------------------------------------------------------
 CREATE TABLE if not exists R_STAT (
     len   INTEGER PRIMARY KEY,
-    count INTEGER
+    count INTEGER,
+    proc  NUMERIC (4, 1)
 );
 CREATE TABLE if not exists GRAPH (
     i_net INTEGER,

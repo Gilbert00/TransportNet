@@ -37,15 +37,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 import org.sqlite.JDBC;
         
 //-----
 class DbHandler {
 	final static String dbFile = "TransportNet.s3db";
 	//public static Connection conn;
-	public static Statement statement;
-	public static PreparedStatement prepStmnt;
-	public static ResultSet resultSet;	
+	public static Statement statementDH;
+	public static PreparedStatement prepStmtDH;
+	public static ResultSet resultSetDH;	
 //-----------	
 	private static final String CON_STR = "jdbc:sqlite:"+dbFile;
 	private static DbHandler instance = null;
@@ -60,16 +61,31 @@ class DbHandler {
 	DbHandler() throws SQLException {
 		DriverManager.registerDriver(new JDBC());
         this.connection = DriverManager.getConnection(CON_STR);
-		//!!!this.connection.setAutoCommit(false);
-		this.statement = connection.createStatement();
+		//this.connection.setAutoCommit(false);
+		this.statementDH = connection.createStatement();
+		Statement statement = connection.createStatement();
+		statement.execute("PRAGMA synchronous = OFF");
+		//connection.commit();
+		statement.execute("PRAGMA journal_mode = OFF");
+		//connection.commit();
+		statement.execute("PRAGMA temp_store = MEMORY");
+		//connection.commit();
+		statement.execute("PRAGMA cache_size = 1000000");
+		//connection.commit();
     }
 	
 	static void commit() {
 		try (Statement statement = DbHandler.connection.createStatement()) {
 			statement.execute("COMMIT");
+            statement.close();
 		} catch (SQLException e) {
             e.printStackTrace();
         }
+	}
+	
+	static void close() throws SQLException {
+		statementDH.close();
+		connection.close();
 	}
 }
 
@@ -99,14 +115,16 @@ class TransportNetDB extends DbHandler {
 		);
 		statement.execute("CREATE TABLE if not exists R_STAT ("+
 			"len   INTEGER PRIMARY KEY, "+
-			"count INTEGER "+
+			"count INTEGER, "+
+			"proc  NUMERIC (4, 1) "+
 			");"
 		);
 		statement.execute("CREATE TABLE if not exists STATE ("+
 			"state INTEGER (2), "+
 			"i_net INTEGER "+
 			");"
-		);		
+		);	
+		statement.close();
 	}
 	
 	static void add_stat(Limits listR) throws SQLException {
@@ -116,7 +134,8 @@ class TransportNetDB extends DbHandler {
 		Statement statement = DbHandler.connection.createStatement();
 		statement.execute("INSERT INTO 'R_STAT' ('len', 'count') VALUES ("+len+",1) ON CONFLICT(len) DO " +
 				"UPDATE SET count=count+1 WHERE len="+len+";");
-		//!!!commit();		
+		//!!!commit();
+		statement.close();
 	}
 	
 	static void get_limits_stat() throws SQLException {
@@ -126,24 +145,39 @@ class TransportNetDB extends DbHandler {
 		int nCount=0;
 		
 		//resultSet = statement.executeQuery("select SUM(count*len)/SUM(count) as avg_len, SUM(count) as sum_cnt from r_stat");
-		resultSet = statement.executeQuery("select SUM(count*len) as sum_len, SUM(count) as sum_cnt from r_stat");
-		while(resultSet.next()) {
-			sumLen = resultSet.getInt("sum_len");
-			//avgLen = resultSet.getDouble("avg_len");
-			nCount = resultSet.getInt("sum_cnt");
+		Statement statement1 = DbHandler.connection.createStatement();
+		ResultSet resultSet1 = statement1.executeQuery("select SUM(count*len) as sum_len, SUM(count) as sum_cnt from r_stat");
+		while(resultSet1.next()) {
+			sumLen = resultSet1.getInt("sum_len");
+			//avgLen = resultSet1.getDouble("avg_len");
+			nCount = resultSet1.getInt("sum_cnt");
 		}
 		avgLen = 1.0*sumLen/nCount;
+		resultSet1.close();
+		statement1.close();
 		
 		double sigma;
 		double d=0;
 		double sumD = 0;
-		Statement statement = DbHandler.connection.createStatement();
-		ResultSet resultSet = statement.executeQuery("select len, count from r_stat");
-		while(resultSet.next()) {
-			d = (resultSet.getInt("len") - avgLen);
+		int len;
+		int count;
+		String proc;
+		Statement statement3 = DbHandler.connection.createStatement();
+		Statement statement2 = DbHandler.connection.createStatement();
+		ResultSet resultSet2 = statement2.executeQuery("select len, count from r_stat");
+		while(resultSet2.next()) {
+			len = resultSet2.getInt("len");
+			count = resultSet2.getInt("count");
+			d = (len - avgLen);
 			//System.out.printf("d: %.2f%n", d); //TST!!!
-			sumD += d*d*resultSet.getInt("count");
+			sumD += d*d*count;
+			proc = String.format(Locale.US, "%.1f",count*100.0 / nCount);
+            //System.out.printf(Locale.US,"UPDATE r_stat SET proc="+proc+" WHERE len="+len+";%n");//TST
+			statement3.execute("UPDATE r_stat SET proc="+proc+" WHERE len="+len+";");
 		}
+		resultSet2.close();
+		statement2.close();
+		statement3.close();
 		if (nCount<=1) sigma = d;
 		else sigma = Math.sqrt(sumD / (nCount-1.0));
 		
@@ -155,33 +189,36 @@ class TransportNetDB extends DbHandler {
 		Statement statement = DbHandler.connection.createStatement();
 		statement.execute("delete from state;");
 		statement.execute("delete from r_stat;");
-		statement.execute("delete from GRAPH;");		
+		if (! Constants.check_TST(new int[]{10})) {
+			statement.execute("delete from GRAPH;");
+		}
 		statement.execute("VACUUM");
-		//!!!commit();		
+		//!!!commit();
+		statement.close();
 	}
 
 }	
 //-----
 class TransportNetPrepStmt{
 	TransportNetDB db;
-	Statement statement;
-	PreparedStatement prepStmnt;
-	ResultSet resultSet;		
+	//Statement statement;
+	PreparedStatement prepStmt;
+	//ResultSet resultSet;		
 	
 	TransportNetPrepStmt(TransportNetDB db, String sql) throws SQLException {
 		this.db = db;
-		this.prepStmnt = db.connection.prepareStatement(sql);
+		this.prepStmt = db.connection.prepareStatement(sql);
 	}
 	
 	void add_arc_to_db(int net, int x, int gx) throws SQLException {
         //System.out.printf("%d %d %d%n", net, x, gx); //TST
-		prepStmnt.setInt(1,net);
-		prepStmnt.setInt(2,x);
-		prepStmnt.setInt(3,gx);
-		prepStmnt.execute();
+		prepStmt.setInt(1,net);
+		prepStmt.setInt(2,x);
+		prepStmt.setInt(3,gx);
+		prepStmt.execute();
 	}
 	
 	void close() throws SQLException {
-		this.prepStmnt.close();
+		this.prepStmt.close();
 	}
 }

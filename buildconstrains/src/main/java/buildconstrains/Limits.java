@@ -50,6 +50,26 @@ class Constants{
     //static int EMPTY_EL=-1;
     static int TST=0; //!!! [1,2,4,5]
 	
+	enum TSTvalue{
+		NoTst(0),
+		TstMatrG(1),
+		TstGraph(2),
+		TstBuildLimits(4),
+		TstPrintLimits(5),
+		OnlyStat(10);
+		
+		private int index;
+		
+		private TSTvalue(int ind){
+			this.index = ind;
+		}
+		
+		int getTSTvalue(){ return this.index;}
+		
+		
+		
+	}
+	
 	static boolean check_TST(int[] inds) {
 		for(int i=0; i<inds.length; i++) {
 			if (TST==inds[i]) return true;
