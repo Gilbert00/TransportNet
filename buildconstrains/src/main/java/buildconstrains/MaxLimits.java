@@ -37,6 +37,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.sqlite.JDBC;
         
 //-------------------
@@ -53,6 +55,7 @@ public class MaxLimits {
 		TransportNetDB db = null;
 		try {
 			db = new TransportNetDB();
+			db.clear();
 		}
 		catch (SQLException e) {
             e.printStackTrace();
@@ -60,40 +63,45 @@ public class MaxLimits {
 		
 		return db;
 	}
-	
-/* 	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
+
+	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
         int srcLength = source.length;
         int permutations = (int) Math.pow(srcLength, nX);
+		System.out.println(" setVariations"); //TST
         System.out.printf("nX,nY,ng,nNet: %d,%d,%d,%d%n", nX,variationLength,srcLength,permutations);//TST
         
 		try {
 	//		TransportNetDB db = new TransportNetDB();
+	
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'GRAPH' ('i_net', 'x', 'gx') VALUES (?,?,?);");
 			
 			for (int i = 0; i < nX; i++) {
 				int t2 = (int) Math.pow(srcLength, i);
 				for (int p1 = 0; p1 < permutations;) {
 					for (int al = 0; al < srcLength; al++) {
 						for (int p2 = 0; p2 < t2; p2++) {
-							db.add_arc_to_db(p1, i+1, source[al]);
+							prepstmt.add_arc_to_db(p1, i+1, source[al]);
 							p1++;
 						}
 					}
 				}
-			}	
+			}
+			prepstmt.close();	
 		}
 		catch (SQLException e) {
             e.printStackTrace();
         }
-    }	 */
- 
-	static void read_all_graphs(TransportNetDB db) {
+    }	
+	
+/* 	static void read_all_graphs(TransportNetDB db) {
 		try {
 			db.resultSetDH = db.statementDH.executeQuery("select i_net,x,gx from graph order by 1,2");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
+	} */
 	
 	static void do_all_graphs(TransportNetDB db) {
 		final int EMPTY_NET = -1;
@@ -108,28 +116,41 @@ public class MaxLimits {
 		print_current_date();
 		//set_new_graph_file();
 		try {
-			while(db.resultSetDH.next()) {
-				i_net = db.resultSetDH.getInt("i_net");
+			Statement statement = db.connection.createStatement();
+			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+					
+			DBInsUpd prepstmt = new DBInsUpd(db,
+										"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1);",
+										"UPDATE 'R_STAT' SET count=count+1 WHERE len=?;"
+									);
+			
+			while(resultSet.next()) {
+				i_net = resultSet.getInt("i_net");
+
 				//System.out.printf("i_net_old i_net: %d %d%n", i_net_old,i_net); //TST
 				
 				if (i_net != i_net_old){
 					if (i_net_old != EMPTY_NET) {
 						close_graph_file();
-						do_one_graph(db);
+						do_one_graph(db,prepstmt);
 					}
 					set_new_graph_file();
 					i_net_old = i_net;
 				}
 				
-				x = db.resultSetDH.getInt("x");
-				gx = db.resultSetDH.getInt("gx");	
+				x = resultSet.getInt("x");
+				gx = resultSet.getInt("gx");	
 				//System.out.printf("x gx: %d %d%n", x,gx); //TST				
 				out_graph_str(x,gx);
 			}
 			close_graph_file();
-			do_one_graph(db);
+			do_one_graph(db,prepstmt);
+			//System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST
+			resultSet.close();
+			statement.close();
+			prepstmt.close();
 			
-//			db.get_limits_stat();
+			//db.get_limits_stat();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -138,40 +159,46 @@ public class MaxLimits {
 	
 	static void set_new_graph_file() {
 //		graph = new Graph();
-		FullNet.graphFile = new OutToFile(fileName);
+		MaxLimits.graphFile = new OutToFile(fileName);
 	}
 	
 	static void close_graph_file() {
 //		graph = null;
-		FullNet.graphFile.close();
+		MaxLimits.graphFile.close();
 	}
  
 	static void out_graph_str(int x, int gx) {
-        String s;
-		String formatInt = "%02d";		
+        //String s;
+		String formatInt = "%02d";
         int iX = x;
         int iY;
         String bin;
         int lenBin;
-		s = String.format(formatInt,iX);
+		//s = String.format(formatInt,iX);
+		String s = "";
         bin=Integer.toBinaryString(gx);
 		lenBin = bin.length();
+		if (Constants.check_TST(new int[]{6})) System.out.printf("X,gx,bin,lenBin: %d %d %s %d%n", iX,gx,bin,lenBin); //TST
+
 		for(int j=0; j<lenBin; j++) {
+			//System.out.printf("j,char: %d %s%n", j,bin.charAt(j)); //TST
 			if(bin.charAt(j)=='1') {
-				iY = j+1;
-				s += "," + String.format(formatInt,iY);
+				iY = lenBin - j;
+				//System.out.printf("j,iY: %d %d%n", j,iY); //TST
+				s = "," + String.format(formatInt,iY) + s;
 			}
 		}
-		//System.out.printf("s: %s%n", s); //TST
-		FullNet.graphFile.out_str(s);
+		s = String.format(formatInt,iX) + s;
+		if (Constants.check_TST(new int[]{6})) System.out.printf("s: %s%n", s); //TST
+		MaxLimits.graphFile.out_str(s);
 	}
  
-	static void do_one_graph(TransportNetDB db) throws SQLException {
+	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
 		graph.input(fileName);
-    //Tst System.out.println(' after graph_input')
-		//System.out.printf("graph: %s%n",graph.get_graph()); //TST
+		//System.out.println(' after graph_input') //TST
+		if (Constants.check_TST(new int[]{6})) System.out.printf("graph: %s%n",graph.get_graph()); //TST
 
 		Limits listR = null;
 	
@@ -185,7 +212,7 @@ public class MaxLimits {
 			System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST			
 		}
 	//	listR.print_limits(graph);
-		//db.add_stat(listR);	
+		//prepstmt.add_stat(listR);	
 
 //		MaxLimits.graph_count++;
 //		System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST
@@ -198,20 +225,38 @@ public class MaxLimits {
 	}
  
     static void main2(int nx, int ny) {
+		System.out.printf("nx,ny: %d %d%n",nx,ny); //TST
 		
-		MaxLimits.maxLimit = (int)Math.pow(2,nx)-1;
+		if(nx<ny)
+			MaxLimits.maxLimit = (int)Math.pow(2,nx)-1;
+		else if(nx==ny)
+			if(nx>=4)
+				MaxLimits.maxLimit = (nx-1)*(nx-1);
+			else
+				MaxLimits.maxLimit = (int)Math.pow(2,nx-1);
+		else
+			return;
+		
+		System.out.printf("maxLimit: %d%n",MaxLimits.maxLimit); //TST
+ 
+		try {
+			TransportNetDB db = open_db();
 
-		int ng = (int)Math.pow(2, ny) - 1;
-		int[] g = new int[ng];
-		
-		for(int i=0; i<ng; i++) g[i] = i+1;
-		
-		TransportNetDB db = open_db();
+			if (! Constants.check_TST(new int[]{10})) {
+				int ng = (int) Math.pow(2, ny) - 1;
+				int[] g = new int[ng];
+			
+				for(int i=0; i<ng; i++) g[i] = i+1;
 
-//        setVariations(db,g,nx,ny);
-		
-		read_all_graphs(db);
-		do_all_graphs(db);
+				setVariations(db,g,nx,ny);
+			}
+			//read_all_graphs(db);
+			do_all_graphs(db);
+			print_current_date();
+            TransportNetDB.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(MaxLimits.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
  
   private static void main1(String[] argv){
@@ -222,14 +267,14 @@ public class MaxLimits {
 	final String fileName = "MaxLimitsTmp.csv"; 
 	
 	if (argv.length > 2) 
-        Constants.set_TST(Integer.parseInt(argv[3]));
-	
-	//this.maxLimit = (int)Math.pow(2,xSize)-1;
+        Constants.set_TST(Integer.parseInt(argv[2]));
 
 	main2(xSize,ySize);
+	
   }
 //-- 
   public static void main(String[] argv) {
+	  
 	print_current_date();
 	
 	String className = MethodHandles.lookup().lookupClass().getSimpleName();

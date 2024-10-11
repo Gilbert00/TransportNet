@@ -451,25 +451,44 @@ class QX extends MatrG {
         ArrayList<Boolean> explored = new ArrayList<>(); //[ False for i in range(lenQX) ]
 		for(int i=0; i<lenQX; i++) explored.add(i, false);
         BinMG inbinMG = new BinMG(lenQX); //#[ (-1,-1) for i in range(lenQX) ]
-        //System.out.println('inbinMG:',inbinMG.get_list())  //Tst
+        //System.out.printf("lenQX,inbinMG: %s%n",lenQX,inbinMG.get_list());  //Tst
+        //System.out.printf("qSize: %d%n",q.size()); //Tst
         
         int ibin = 0;
+		int istrt = 0;
+		int i;
         while (ibin < lenQX) {
-            int istrt = ibin;
+            //int istrt = ibin; Get_istrt!!!
+			for(i=0; i<=lenQX; i++) {
+				if (i==lenQX) break;
+					
+				if (! explored.get(i)) {
+					istrt = i;
+					break;
+				}
+			}
+			if (i==lenQX) break;
+			
             explored.set(istrt,true);
             q.add(istrt);
+            //System.out.printf("qSize: %d%n",q.size()); //Tst
+			//System.out.printf("Add istrt,qSize: %d %d %s%n",istrt,q.size(),q.toString()); //Tst
             while (! q.isEmpty()){
+                //System.out.printf("While qSize: %d %s%n",q.size(),q.toString()); //Tst
                 int iv = (Integer) q.poll();
-                VertexSet y = matrG.set_binY(iv); //Tst
-                //#System.out.println('y:',y.to_int(),y,type(y)) //Tst
-                //inbinMG.set_row(ibin, ((matrG.set_binY(iv),iv)))
-                inbinMG.set_row(ibin, new BinMGRow(y,iv)); //Tst
-                //inbinMG.set_row(ibin, [y,iv]) //Tst
+                //System.out.printf("qSize: %d%n",q.size()); //Tst
+				//System.out.printf("Poll iv,qSize: %d %d %s%n",iv,q.size(),q.toString()); //Tst
+                VertexSet y = matrG.set_binY(iv); 
+                //System.out.printf("ibin,y,yVS: %d %d %s%n",ibin,y.to_int(),y); //Tst
+                inbinMG.set_row(ibin, new BinMGRow(y,iv)); 
                 ibin += 1;
+				//System.out.printf("ibin: %d%n",ibin); //Tst
 				for(int iw=0; iw < (this.get_row(iv)).len(); iw++) {
-                    if ((this.get_el(iv,iw) == 1) & (! explored.get(iw))) {
+                    if ((this.get_el(iv,iw) == 1) && (! explored.get(iw))) {
                         explored.set(iw,true);
                         q.add(iw);
+                        //System.out.printf("qSize: %d%n",q.size()); //Tst
+						//System.out.printf("Add iw,qSize: %d %d %s%n",iw,q.size(),q.toString()); //Tst
 					}
 				}
 			}
@@ -535,7 +554,7 @@ class BinMG extends ArrayList<BinMGRow> {
     }
     
     void set_row(int kx, BinMGRow val){
-        //#System.out.println('val:',val)
+        //System.out.printf("kx,val: %d %s%n",kx,val); //TST!!!
         this.binMG.set(kx, val);
     }
         

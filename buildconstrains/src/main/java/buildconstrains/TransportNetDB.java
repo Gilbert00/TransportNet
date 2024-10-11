@@ -37,6 +37,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.Locale;
 import org.sqlite.JDBC;
         
@@ -126,17 +127,6 @@ class TransportNetDB extends DbHandler {
 		);	
 		statement.close();
 	}
-	
-/* 	static void add_stat(Limits listR) throws SQLException {
-		//System.out.println(" add_stat"); //TST
-		int len = listR.len();
-		//System.out.printf("listR.len: %d%n", len);
-		Statement statement = DbHandler.connection.createStatement();
-		statement.execute("INSERT INTO 'R_STAT' ('len', 'count') VALUES ("+len+",1) ON CONFLICT(len) DO " +
-				"UPDATE SET count=count+1 WHERE len="+len+";");
-		//!!!commit();
-		statement.close();
-	} */
 	
 	static void get_limits_stat() throws SQLException {
 		System.out.println(" get_limits_stat"); //TST
@@ -232,3 +222,38 @@ class TransportNetPrepStmt{
 		this.prepStmt.close();
 	}
 }
+//-----
+class DBInsUpd {
+	TransportNetDB db;
+	PreparedStatement prepStmtIns;
+	PreparedStatement prepStmtUpd;
+	HashSet<Integer> states;
+	
+	DBInsUpd(TransportNetDB db, String sqlIns,  String sqlUpd) throws SQLException {
+		this.db = db;
+		this.prepStmtIns = db.connection.prepareStatement(sqlIns);
+		this.prepStmtUpd = db.connection.prepareStatement(sqlUpd);
+		this.states = new HashSet<Integer>();
+	}	
+
+	void add_stat(Limits listR) throws SQLException {
+		//System.out.println(" add_stat"); //TST
+		int len = listR.len();
+		//System.out.printf("listR.len: %d%n", len);
+		
+		if (states.add(len)) {//Ins
+			prepStmtIns.setInt(1,len);
+			prepStmtIns.execute();
+		}
+		else {//Upd
+			prepStmtUpd.setInt(1,len);
+			prepStmtUpd.execute();
+		}
+		//!!!commit();
+	}
+
+	void close() throws SQLException {
+		this.prepStmtIns.close();
+		this.prepStmtUpd.close();
+	}	
+}	

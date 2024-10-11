@@ -117,11 +117,12 @@ public class FullNet {
 		try {
 			Statement statement = db.connection.createStatement();
 			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+					
+			DBInsUpd prepstmt = new DBInsUpd(db,
+										"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1);",
+										"UPDATE 'R_STAT' SET count=count+1 WHERE len=?;"
+									);
 			
-			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
-				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
-				"UPDATE SET count=count+1 WHERE len=?;");
-						
 			while(resultSet.next()) {
 				i_net = resultSet.getInt("i_net");
 				//System.out.printf("i_net_old i_net: %d %d%n", i_net_old,i_net); //TST
@@ -165,35 +166,41 @@ public class FullNet {
 	}
  
 	static void out_graph_str(int x, int gx) {
-        String s;
+        //String s;
 		String formatInt = "%02d";		
         int iX = x;
         int iY;
         String bin;
         int lenBin;
-		s = String.format(formatInt,iX);
+		//s = String.format(formatInt,iX);
+		String s = "";
         bin=Integer.toBinaryString(gx);
 		lenBin = bin.length();
+		if (Constants.check_TST(new int[]{6})) System.out.printf("X,gx,bin,lenBin: %d %d %s %d%n", iX,gx,bin,lenBin); //TST
 		for(int j=0; j<lenBin; j++) {
+			//System.out.printf("j,char: %d %s%n", j,bin.charAt(j)); //TST
 			if(bin.charAt(j)=='1') {
-				iY = j+1;
-				s += "," + String.format(formatInt,iY);
+				iY = lenBin - j;
+				//System.out.printf("j,iY: %d %d%n", j,iY); //TST
+				s = "," + String.format(formatInt,iY) + s;
 			}
 		}
-		//System.out.printf("s: %s%n", s); //TST
+		s = String.format(formatInt,iX) + s;
+		if (Constants.check_TST(new int[]{6})) System.out.printf("s: %s%n", s); //TST
 		FullNet.graphFile.out_str(s);
 	}
  
-	static void do_one_graph(TransportNetDB db, TransportNetPrepStmt prepstmt) throws SQLException {
+	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
 		graph.input(fileName);
 		//System.out.println(' after graph_input') //TST
-		//System.out.printf("graph: %s%n",graph.get_graph()); //TST
+		if (Constants.check_TST(new int[]{6})) System.out.printf("graph: %s%n",graph.get_graph()); //TST
 
 		Limits listR = null;
 	
-		listR = Limits.build_net_limits(graph,false);
+		boolean bListRout = (Constants.check_TST(new int[]{6}));
+		listR = Limits.build_net_limits(graph,bListRout);
 	//!!!	System.out.printf("listR len: %d%n",listR.len());
 	//	listR.print_limits(graph);
 		prepstmt.add_stat(listR);	
@@ -223,6 +230,7 @@ public class FullNet {
             }
             //read_all_graphs(db);
             do_all_graphs(db);
+			print_current_date();
             TransportNetDB.close();
         } catch (SQLException ex) {
             Logger.getLogger(FullNet.class.getName()).log(Level.SEVERE, null, ex);

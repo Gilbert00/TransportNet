@@ -56,6 +56,7 @@ class Constants{
 		TstGraph(2),
 		TstBuildLimits(4),
 		TstPrintLimits(5),
+		TstBuildGraph(6),
 		OnlyStat(10);
 		
 		private int index;
