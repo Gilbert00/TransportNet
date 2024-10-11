@@ -1,3 +1,5 @@
 
 *.code-workspace
 /buildconstrains/target/
+*.s3db
+
