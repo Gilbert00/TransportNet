@@ -12,8 +12,8 @@
             <properties>
                 <exec.vmArgs></exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.appArgs>4  4</exec.appArgs>
-                <exec.mainClass>buildconstrains.MaxLimits</exec.mainClass>
+                <exec.appArgs>3 9</exec.appArgs>
+                <exec.mainClass>buildconstrains.FullNet</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <exec.workingdir>D:\Develop0\TestTeX\TransportNet</exec.workingdir>
             </properties>
@@ -30,8 +30,8 @@
             <properties>
                 <exec.vmArgs>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.appArgs>4  4</exec.appArgs>
-                <exec.mainClass>buildconstrains.MaxLimits</exec.mainClass>
+                <exec.appArgs>3 9</exec.appArgs>
+                <exec.mainClass>buildconstrains.FullNet</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
                 <exec.workingdir>D:\Develop0\TestTeX\TransportNet</exec.workingdir>
@@ -49,9 +49,9 @@
             <properties>
                 <exec.vmArgs></exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.mainClass>buildconstrains.MaxLimits</exec.mainClass>
+                <exec.mainClass>buildconstrains.FullNet</exec.mainClass>
                 <exec.executable>java</exec.executable>
-                <exec.appArgs>4  4</exec.appArgs>
+                <exec.appArgs>3 9</exec.appArgs>
                 <exec.workingdir>D:\Develop0\TestTeX\TransportNet</exec.workingdir>
             </properties>
         </action>

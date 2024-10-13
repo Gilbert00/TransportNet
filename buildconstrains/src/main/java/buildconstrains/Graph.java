@@ -165,7 +165,9 @@ class Graph{
 			while ((row = br.readLine()) != null) {
 				//Tst System.out.printf("row: |%s|%n",row);
 				if (row.trim().length() == 0) continue;
-				String[] values = row.split(COMMA_DELIMITER);
+				
+				row_to_graph(row);
+/* 				String[] values = row.split(COMMA_DELIMITER);
 			//	records.add(Arrays.asList(values));
 				String key = values[0];
 				//if (Constants.check_TST(new int[]{2})) System.out.printf("key: %s%n",key);
@@ -174,7 +176,8 @@ class Graph{
 					if (Constants.check_TST(new int[]{2})) System.out.printf("key, value: %s %s%n",key,values[i]);
 					vals.add(values[i]);
 				}
-				this.graph.put(key, vals);
+				this.graph.put(key, vals); */
+				
 			}	
         }
         catch(IOException e){
@@ -184,6 +187,34 @@ class Graph{
      //   System.out.println()
      //   System.out.println(self.graph)
     }
+//--------
+// Graph
+	public void input_buffer(BufferFile file){
+		if (Constants.check_TST(new int[]{2})) System.out.println(" input_buffer");		
+		String row;
+		row = file.read_line();
+		while (!"".equals(row)) {
+			//System.out.printf("row: |%s|%n",row); //Tst 
+			if (row.trim().length() == 0) continue;
+			
+			row_to_graph(row);
+			row = file.read_line();
+		}
+	}
+//--------
+// Graph
+	void row_to_graph(String row) {
+		String[] values = row.split(COMMA_DELIMITER);
+	//	records.add(Arrays.asList(values));
+		String key = values[0];
+		//if (Constants.check_TST(new int[]{2})) System.out.printf("key: %s%n",key);
+		ArrayList<String> vals = new ArrayList<>();
+		for(int i=1; i<values.length; i++){
+			if (Constants.check_TST(new int[]{2})) System.out.printf("key, value: %s %s%n",key,values[i]);
+			vals.add(values[i]);
+		}
+		this.graph.put(key, vals);
+	}
 //--------
 // Graph
     boolean check_list(ArrayList<String> lst, String e){

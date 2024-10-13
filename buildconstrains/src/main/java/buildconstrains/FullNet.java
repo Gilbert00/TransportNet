@@ -44,7 +44,8 @@ import org.sqlite.JDBC;
 //-------------------
 public class FullNet {
 	final static String fileName = "FullNetTmp.csv"; 
-	static OutToFile graphFile;
+//	static OutToFile graphFile;
+	static BufferFile graphFile;
 	static int graph_count=0;
 	
 	static Graph graph = null;
@@ -62,7 +63,8 @@ public class FullNet {
 		
 		return db;
 	}
-	
+//--------
+// FullNet	
 	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
         int srcLength = source.length;
         int permutations = (int) Math.pow(srcLength, nX);
@@ -101,7 +103,8 @@ public class FullNet {
 			e.printStackTrace();
 		}
 	} */
-	
+//--------
+// FullNet	
 	static void do_all_graphs(TransportNetDB db) {
 		final int EMPTY_NET = -1;
 		int i_net_old=EMPTY_NET;
@@ -118,10 +121,14 @@ public class FullNet {
 			Statement statement = db.connection.createStatement();
 			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
 					
-			DBInsUpd prepstmt = new DBInsUpd(db,
+/* 			DBInsUpd prepstmt = new DBInsUpd(db,
 										"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1);",
 										"UPDATE 'R_STAT' SET count=count+1 WHERE len=?;"
-									);
+									); */
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
+				"UPDATE SET count=count+1 WHERE len=?;");
+
 			
 			while(resultSet.next()) {
 				i_net = resultSet.getInt("i_net");
@@ -154,17 +161,21 @@ public class FullNet {
 			e.printStackTrace();
 		}		
 	}
-	
+//--------
+// FullNet	
 	static void set_new_graph_file() {
 //		graph = new Graph();
-		FullNet.graphFile = new OutToFile(fileName);
+		//FullNet.graphFile = new OutToFile(fileName);
+		FullNet.graphFile = BufferFile.getBuffer();
 	}
-	
+//--------
+// FullNet	
 	static void close_graph_file() {
 //		graph = null;
 		FullNet.graphFile.close();
 	}
- 
+//--------
+// FullNet 
 	static void out_graph_str(int x, int gx) {
         //String s;
 		String formatInt = "%02d";		
@@ -189,12 +200,15 @@ public class FullNet {
 		if (Constants.check_TST(new int[]{6})) System.out.printf("s: %s%n", s); //TST
 		FullNet.graphFile.out_str(s);
 	}
- 
-	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
+//--------
+// FullNet 
+//	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
+	static void do_one_graph(TransportNetDB db, TransportNetPrepStmt prepstmt) throws SQLException {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
-		graph.input(fileName);
-		//System.out.println(' after graph_input') //TST
+		//graph.input(fileName);
+		graph.input_buffer(graphFile);
+		//System.out.println(" after input_buffer"); //TST
 		if (Constants.check_TST(new int[]{6})) System.out.printf("graph: %s%n",graph.get_graph()); //TST
 
 		Limits listR = null;
@@ -208,13 +222,15 @@ public class FullNet {
 		FullNet.graph_count++;
 		//System.out.printf("graph_count: %d%n",FullNet.graph_count); //TST
 	}
- 
+//--------
+// FullNet 
 	static void print_current_date() {
 		Date current = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
 		System.out.println(formatter.format(current));	
 	}
- 
+//--------
+// FullNet 
     static void main2(int nx, int ny) {
 		
         try {
@@ -236,7 +252,8 @@ public class FullNet {
             Logger.getLogger(FullNet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
- 
+//--------
+// FullNet 
   private static void main1(String[] argv){
 
 	int xSize = Integer.parseInt(argv[0]);
@@ -250,7 +267,8 @@ public class FullNet {
 	main2(xSize,ySize);
 
   }
-//-- 
+//--------
+// FullNet
   public static void main(String[] argv) {
 
 	print_current_date();
