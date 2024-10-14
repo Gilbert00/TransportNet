@@ -819,6 +819,12 @@ CREATE TABLE if not exists GRAPH (
         x ASC
     )
 );
+CREATE UNIQUE INDEX IF NOT EXISTS U_GRAPH_IX ON GRAPH (
+    i_net ASC,
+    x ASC
+);
+DROP INDEX U_GRAPH_IX;
+
 PRAGMA foreign_keys = 1;
 
 CREATE TABLE if not exists STATE (

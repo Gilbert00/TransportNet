@@ -74,6 +74,8 @@ public class FullNet {
 		try {
 	//		TransportNetDB db = new TransportNetDB();
 	
+			db.drop_graph_indx();
+			
 			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
 				"INSERT INTO 'GRAPH' ('i_net', 'x', 'gx') VALUES (?,?,?);");
 			
@@ -88,7 +90,11 @@ public class FullNet {
 					}
 				}
 			}
-			prepstmt.close();	
+			prepstmt.close();
+			
+			System.out.println(" create_graph_indx"); //TST
+			print_current_date();
+			db.create_graph_indx();
 		}
 		catch (SQLException e) {
             e.printStackTrace();
@@ -127,7 +133,8 @@ public class FullNet {
 									); */
 			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
 				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
-				"UPDATE SET count=count+1 WHERE len=?;");
+				"UPDATE SET count=count+1;");
+				//"UPDATE SET count=count+1 WHERE len=?;");
 
 			
 			while(resultSet.next()) {

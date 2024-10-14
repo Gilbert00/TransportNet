@@ -107,24 +107,47 @@ class TransportNetDB extends DbHandler {
 	static void create_tables() throws SQLException {
         //System.out.printf(" create_tables"); //TST
 		Statement statement = DbHandler.connection.createStatement();
+		
 		statement.execute("CREATE TABLE if not exists GRAPH ("+
 			"i_net INTEGER, "+
 			"x     INTEGER (2), "+
-			"gx    INTEGER, "+
-			"CONSTRAINT U_IX UNIQUE (i_net ASC,	x ASC)"+
+			"gx    INTEGER "+
+//			"gx    INTEGER, "+
+//			"CONSTRAINT U_IX UNIQUE (i_net ASC,	x ASC)"+
 			");"
 		);
+		
+		create_graph_indx();
+		
 		statement.execute("CREATE TABLE if not exists R_STAT ("+
 			"len   INTEGER PRIMARY KEY, "+
 			"count INTEGER, "+
 			"proc  NUMERIC (4, 1) "+
 			");"
 		);
+		
 		statement.execute("CREATE TABLE if not exists STATE ("+
 			"state INTEGER (2), "+
 			"i_net INTEGER "+
 			");"
 		);	
+		
+		statement.close();
+	}
+	
+	static void create_graph_indx() throws SQLException {
+		Statement statement = DbHandler.connection.createStatement();
+		statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS U_GRAPH_IX ON GRAPH ("+
+		    "i_net ASC, "+
+			"x ASC "+
+			");"
+		);		
+		statement.close();
+	}
+	
+	static void drop_graph_indx() throws SQLException {
+		Statement statement = DbHandler.connection.createStatement();
+		statement.execute("DROP INDEX U_GRAPH_IX;");
 		statement.close();
 	}
 	
@@ -213,7 +236,7 @@ class TransportNetPrepStmt{
 		int len = listR.len();
 		//System.out.printf("listR.len: %d%n", len);
 		prepStmt.setInt(1,len);
-		prepStmt.setInt(2,len);
+//		prepStmt.setInt(2,len);
 		prepStmt.execute();
 		//!!!commit();
 	}
