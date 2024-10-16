@@ -94,6 +94,7 @@ class DbHandler {
 class TransportNetDB extends DbHandler {
 	//DONE: db clearing
 	//DONE: db create
+
     TransportNetDB() throws SQLException{
 	//	check_existence_db();
 		super.getInstance();
@@ -128,7 +129,9 @@ class TransportNetDB extends DbHandler {
 		
 		statement.execute("CREATE TABLE if not exists STATE ("+
 			"state INTEGER (2), "+
-			"i_net INTEGER "+
+			"i_net INTEGER, "+
+			"nx    INTEGER (2), "+
+			"ny    INTEGER (2)" +
 			");"
 		);	
 		
@@ -149,6 +152,33 @@ class TransportNetDB extends DbHandler {
 		Statement statement = DbHandler.connection.createStatement();
 		statement.execute("DROP INDEX U_GRAPH_IX;");
 		statement.close();
+	}
+	
+	boolean check_net(int nx, int ny) throws SQLException {
+		Statement statement1 = DbHandler.connection.createStatement(); 
+		ResultSet resultSet1 = statement1.executeQuery("select count(*) as cnt from STATE");
+		int cnt = resultSet1.getInt("cnt");
+		if(cnt>1) return false;
+		if(cnt==0) {
+			Statement statement2 = DbHandler.connection.createStatement();
+			statement2.execute("INSERT INTO 'STATE' ('nx', 'ny') VALUES ("+nx+","+ny+");");
+			statement2.close();
+			return true;
+		}
+		if(cnt==1) {
+			Statement statement2 = DbHandler.connection.createStatement();
+			ResultSet resultSet2 = statement1.executeQuery("select nx,ny from STATE");
+			int b_nx = resultSet2.getInt("nx");
+			int b_ny = resultSet2.getInt("ny");
+			boolean result = (nx==b_nx) & (ny==b_ny);
+			resultSet2.close();
+			statement2.close();
+			if(!result)
+				System.out.printf("Others net sizes in base: %d %d !%n",b_nx,b_ny);
+			return result;
+		}
+		System.out.println("Unknown error in db.check_net !");
+        return false;
 	}
 	
 	static void get_limits_stat() throws SQLException {
@@ -198,10 +228,10 @@ class TransportNetDB extends DbHandler {
 	static void clear() throws SQLException {
         try ( //System.out.println(" clear"); //TST
             Statement statement = DbHandler.connection.createStatement()) {
-            statement.execute("delete from state;");
+            //statement.execute("delete from state;");
             if (! Constants.check_TST(new int[]{12})) {
                 statement.execute("delete from r_stat;");
-            }   if (! Constants.check_TST(new int[]{10})) {
+            }   if (! Constants.check_TST(new int[]{10,12})) {
                 statement.execute("delete from GRAPH;");
             }   statement.execute("VACUUM");
             //!!!commit();

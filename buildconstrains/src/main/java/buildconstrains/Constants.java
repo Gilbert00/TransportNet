@@ -59,7 +59,7 @@ class Constants{
 		TstBuildGraph(6),
 		DontClearGraph(10),
 		OutAll(11),
-		DontClearStat(12);
+		DontClearRStat(12);
 		
 		private int index;
 		

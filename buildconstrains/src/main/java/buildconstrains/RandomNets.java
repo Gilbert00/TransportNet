@@ -70,13 +70,15 @@ public class RandomNets {
 	}	
 //-----------
 // RandomNets	
-	static void do_all_graphs(TransportNetDB db, int nx, int ny, int ncykl) {
+	static void do_all_graphs(TransportNetDB db, int nx, int ny, int ncykl) throws SQLException {
 		int ix;
 		long gx;
 		int i;
 		
 		System.out.println(" do_all_graphs"); //TST
 		print_current_date();
+
+		if(!db.check_net(nx,ny)) return;
 		
 		long upBound = (long)Math.pow(2,ny) - 1;
         final Random random = new Random();
