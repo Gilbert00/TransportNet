@@ -186,14 +186,20 @@ class TransportNetDB extends DbHandler {
 		
 		double avgLen=0.0, sumLen=0;
 		long nCount=0;
+		int minLen, maxLen;
 		
         try ( //resultSet = statement.executeQuery("select SUM(count*len)/SUM(count) as avg_len, SUM(count) as sum_cnt from r_stat");
                 Statement statement1 = DbHandler.connection.createStatement(); 
-                ResultSet resultSet1 = statement1.executeQuery("select SUM(count*len) as sum_len, SUM(count) as sum_cnt from r_stat")) {
+                ResultSet resultSet1 = statement1.executeQuery(
+					"select SUM(count*len) as sum_len, SUM(count) as sum_cnt, " +
+					"MIN(len) as min_len, MAX(len) as max_len  from r_stat")
+			) {
             //while(resultSet1.next()) {
                 sumLen = resultSet1.getLong("sum_len");
                 //avgLen = resultSet1.getDouble("avg_len");
                 nCount = resultSet1.getLong("sum_cnt");
+				minLen = resultSet1.getInt("min_len");
+				maxLen = resultSet1.getInt("max_len");
             //}
 			//System.out.printf(Locale.US,"sumLen,nCount: %,.2f %,d%n",sumLen,nCount); //TST
             avgLen = 1.0*sumLen/nCount;
@@ -222,7 +228,7 @@ class TransportNetDB extends DbHandler {
 		if (nCount<=1) sigma = d;
 		else sigma = Math.sqrt(sumD / (nCount-1.0));
 		
-		System.out.printf(Locale.US,"N,E,sigma: %,d %.2f %.2f%n", nCount,avgLen,sigma);
+		System.out.printf(Locale.US,"N,E,sigma,min,max: %,d %.2f %.2f %d %d%n", nCount,avgLen,sigma,minLen,maxLen);
 	}
 	
 	static void clear() throws SQLException {
