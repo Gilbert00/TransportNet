@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
         
@@ -71,14 +72,16 @@ public class RandomNets {
 // RandomNets	
 	static void do_all_graphs(TransportNetDB db, int nx, int ny, int ncykl) {
 		int ix;
-		int gx;
+		long gx;
 		int i;
 		
 		System.out.println(" do_all_graphs"); //TST
 		print_current_date();
 		
-		int upBound = (int)Math.pow(2,ny) - 1;
+		long upBound = (long)Math.pow(2,ny) - 1;
         final Random random = new Random();
+		
+		System.out.printf(Locale.US,"nX nY ng nNet: %d %d %d %,d%n", nx,ny,upBound,ncykl);//TST
 		
 		try {
 			//Statement statement = db.connection.createStatement();
@@ -97,7 +100,7 @@ public class RandomNets {
 				set_new_graph_file();
 				for(i=0; i<nx; i++) {
 					ix = i+1;
-					gx = random.nextInt(upBound) + 1;
+					gx = random.nextLong(upBound) + 1;
 					out_graph_str(ix,gx);
 				}
 				close_graph_file();
@@ -127,7 +130,7 @@ public class RandomNets {
 	}
 //-----------
 // RandomNets 
-	static void out_graph_str(int x, int gx) {
+	static void out_graph_str(int x, long gx) {
         //String s;
 		String formatInt = "%02d";		
         int iX = x;
@@ -136,7 +139,7 @@ public class RandomNets {
         int lenBin;
 		//s = String.format(formatInt,iX);
 		String s = "";
-        bin=Integer.toBinaryString(gx);
+        bin=Long.toBinaryString(gx);
 		lenBin = bin.length();
 		if (Constants.check_TST(new int[]{6})) System.out.printf("X,gx,bin,lenBin: %d %d %s %d%n", iX,gx,bin,lenBin); //TST
 		for(int j=0; j<lenBin; j++) {
