@@ -23,7 +23,7 @@ The results are output as a set of inequalities between the values at the vertic
 ### There are three program versions.
 - First version by Python3 procedures is in branch **main**.
 - Second version by Python3 classes is in branch **oop**.
-- Third version by Java-17 is in branch **java**.
+- Third version by Java-17 is in branch **java-full**.
 
 
 # FullNet.java #
