@@ -37,4 +37,20 @@ The results are output as a set of inequalities between the values at the vertic
 ### Output ###
 Mathematical expectation and average deviation of the network size.
    
-The SQLite database TransportNet.s3db and the temporary file FullNetTmp.csv are used.
+The SQLite database TransportNet.s3db is used.
+
+
+# RandomNets.java #
+
+## The program for statistical analysis of the number of all independent constraints for flows in a network under which there is a solution to a distributive problem on a bipartite graph. Random fixed-size networks are being investigated ##
+
+### Parameters ###
+1. X Network components size
+2. Y Network components size
+3. К-во генерируемых сетей
+4. Operating mode (optional) =12: the calculation is added to the previous one
+
+### Output ###
+Mathematical expectation and average deviation of the network size.
+   
+The SQLite database TransportNet.s3db is used.
