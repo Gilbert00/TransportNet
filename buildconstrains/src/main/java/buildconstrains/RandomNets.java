@@ -31,6 +31,12 @@ import java.nio.file.Paths;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
         
 /* #fileName="graph0.csv"
 #fileName="graph1.csv"
@@ -40,143 +46,186 @@ import java.io.IOException;
 
 #System.out.println(fileName) */
 
-/* class OutToFile {
-    String fileName;
-	BufferedWriter writter;
-    
-    OutToFile(String name) {
-        fileName = name;
-		try {
-			writter = new BufferedWriter(new FileWriter(fileName));
-		}
-        catch (IOException e) {
-			e.printStackTrace();
-		}
-    }
-    
-	void out_str(String s){
-		try {
-			writter.write(s + "\n");
-		}
-        catch (IOException e) {
-			e.printStackTrace();
-		}	
-	}
-
-	void close() {
-		try {
-			writter.close();
-		}
-        catch (IOException e) {
-			e.printStackTrace();
-		}	
-	}
-} */
-
 //-------------------
 //-------------------
 public class RandomNets {
+	static BufferFile graphFile;
+	static int graph_count=0;
+	
+	static Graph graph = null;
+	
+//-----------
+// RandomNets 	
+	static TransportNetDB open_db() {
+		TransportNetDB db = null;
+		try {
+			db = new TransportNetDB();
+			db.clear();
+		}
+		catch (SQLException e) {
+            e.printStackTrace();
+        }		
+		
+		return db;
+	}	
+//-----------
+// RandomNets	
+	static void do_all_graphs(TransportNetDB db, int nx, int ny, int ncykl) throws SQLException {
+		int ix;
+		long gx;
+		int i;
+		
+		System.out.println(" do_all_graphs"); //TST
+		print_current_date();
 
-    static void create_net_file(String fileName, int netSize) {
-        int upBound = (int)Math.pow(2,netSize) - 1;
+		if(!db.check_net(nx,ny)) return;
+		
+		long upBound = (long)Math.pow(2,ny) - 1;
         final Random random = new Random();
-        
-        int currNetY;
-        String binNetY;
-        int lenBin;
-        int iX;
+		
+		System.out.printf(Locale.US,"nX nY ng nNet: %d %d %d %,d%n", nx,ny,upBound,ncykl);//TST
+		
+		try {
+			//Statement statement = db.connection.createStatement();
+			//ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
+					
+/* 			DBInsUpd prepstmt = new DBInsUpd(db,
+										"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1);",
+										"UPDATE 'R_STAT' SET count=count+1 WHERE len=?;"
+									); */
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
+				"UPDATE SET count=count+1;");
+				//"UPDATE SET count=count+1 WHERE len=?;");
+
+			for(int ic=0; ic<ncykl; ic++) {
+				set_new_graph_file();
+				for(i=0; i<nx; i++) {
+					ix = i+1;
+					gx = random.nextLong(upBound) + 1;
+					out_graph_str(ix,gx);
+				}
+				close_graph_file();
+				do_one_graph(db,prepstmt);
+			}
+			//statement.close();
+			prepstmt.close();
+			System.out.printf("graph_count: %d%n",RandomNets.graph_count); //TST
+			db.get_limits_stat();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}		
+	}
+//-----------
+// RandomNets	
+	static void set_new_graph_file() {
+//		graph = new Graph();
+		//RandomNets.graphFile = new OutToFile(fileName);
+		RandomNets.graphFile = BufferFile.getBuffer();
+	}
+//-----------
+// RandomNets	
+	static void close_graph_file() {
+//		graph = null;
+		RandomNets.graphFile.close();
+	}
+//-----------
+// RandomNets 
+	static void out_graph_str(int x, long gx) {
+        //String s;
+		String formatInt = "%02d";		
+        int iX = x;
         int iY;
-        int i,j;
-        String s;
-		final String formatInt = "%02d";
-		OutToFile file = new OutToFile(fileName);
-        for(i=0; i<netSize; i++) {
-            currNetY = random.nextInt(upBound) + 1;
-            binNetY = Integer.toBinaryString(currNetY); 
-            iX = i+1;
-            //s = Integer.toString(iX);
-			s = String.format(formatInt,iX);
-            lenBin = binNetY.length();
-            for(j=0; j<lenBin; j++) {
-                if(binNetY.charAt(j)=='1') {
-                    iY = j+1;
-                    s += "," + String.format(formatInt,iY);
-                }
-            }
-            file.out_str(s);
-        }
-		file.close();
-    }   
-    
- private static void main1(String[] argv){
+        String bin;
+        int lenBin;
+		//s = String.format(formatInt,iX);
+		String s = "";
+        bin=Long.toBinaryString(gx);
+		lenBin = bin.length();
+		if (Constants.check_TST(new int[]{6})) System.out.printf("X,gx,bin,lenBin: %d %d %s %d%n", iX,gx,bin,lenBin); //TST
+		for(int j=0; j<lenBin; j++) {
+			//System.out.printf("j,char: %d %s%n", j,bin.charAt(j)); //TST
+			if(bin.charAt(j)=='1') {
+				iY = lenBin - j;
+				//System.out.printf("j,iY: %d %d%n", j,iY); //TST
+				s = "," + String.format(formatInt,iY) + s;
+			}
+		}
+		s = String.format(formatInt,iX) + s;
+		if (Constants.check_TST(new int[]{6})) System.out.printf("s: %s%n", s); //TST
+		RandomNets.graphFile.out_str(s);
+	}
+//-----------
+// RandomNets 
+//	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
+	static void do_one_graph(TransportNetDB db, TransportNetPrepStmt prepstmt) throws SQLException {
+		//System.out.println(" do_one_graph"); //TST
+		graph = new Graph();
+		//graph.input(fileName);
+		graph.input_buffer(graphFile);
+		//System.out.println(" after input_buffer"); //TST
+		if (Constants.check_TST(new int[]{6})) System.out.printf("graph: %s%n",graph.get_graph()); //TST
 
-/*     String fileName = argv[0];
-    System.out.printf("%s%n",fileName); */
-    
-// check filename for existence !  
-/*     if (! Files.exists( Paths.get(fileName))) {
-        System.out.printf("The input file %s doesn't exists!",fileName);
-        return;
-    } */
-    
-	int NetSize = Integer.parseInt(argv[0]);
-	int CyklCount = Integer.parseInt(argv[1]);
+		Limits listR = null;
 	
-	String fileName = "Test.csv"; //!!!
-	
-/*     int nMode;
-    if (argv.length > 1) 
-        nMode = Integer.parseInt(argv[2]);
-    else
-        nMode = 0; */
-	
-	if (argv.length > 2) 
-        Constants.set_TST(Integer.parseInt(argv[3]));
-
-    //System.out.printf("mode: %d%n",nMode);
-	
-    Graph graph = null;
-	Graph graph_dual = null;
-
-	create_net_file(fileName, NetSize);
-
-	//return; //TST!!!
-	
-	graph = new Graph();
-    graph.input(fileName);
-    //Tst System.out.println(' after graph_input')
-    System.out.printf("graph: %s%n",graph.get_graph());
-
-	Limits listR = null;
-	
-    //if (nMode==1 || nMode==0) {
-    //    dual = False
-        listR = Limits.build_net_limits(graph,false);
-		System.out.printf("listR len: %d%n",listR.len());
+		boolean bListRout = (Constants.check_TST(new int[]{6}));
+		listR = Limits.build_net_limits(graph,bListRout);
+	//!!!	System.out.printf("listR len: %d%n",listR.len());
 	//	listR.print_limits(graph);
-	//!!!	listR.get_stat();
-	//}
-	
-/*     if (nMode==2 || nMode==0){
-    //    dual = True
-        graph_dual = graph.create_dual();
-        System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
-        listR = Limits.build_net_limits(graph_dual);
-	//	listR.print_limits(graph_dual);
-    } */
+		prepstmt.add_stat(listR);	
 
-/*     if (!( nMode>=0 && nMode<=2))
-        System.out.printf("Invalid mode ! %d%n",nMode); */
-  }
-//-- 
+		RandomNets.graph_count++;
+		//System.out.printf("graph_count: %d%n",RandomNets.graph_count); //TST
+	}	
+//-----------	
+// RandomNets 
+	static void print_current_date() {
+		Date current = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
+		System.out.println(formatter.format(current));	
+	}
+//-----------
+// RandomNets  
+    static void main2(int nx, int ny, int ncykl) {
+		
+        try {
+            TransportNetDB db = open_db();
+            do_all_graphs(db,nx,ny,ncykl);
+			print_current_date();
+            TransportNetDB.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(RandomNets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+//-----------	
+// RandomNets     
+	private static void main1(String[] argv){
+
+		//int nNetSize = Integer.parseInt(argv[0]);
+		//int xSize = nNetSize;
+		//int ySize = nNetSize;
+		int xSize = Integer.parseInt(argv[0]);
+		int ySize = Integer.parseInt(argv[1]);
+		int nCyklCount = Integer.parseInt(argv[2]);
+
+		
+		String fileName = "Test.csv"; //!!!
+		
+		if (argv.length > 3) 
+			Constants.set_TST(Integer.parseInt(argv[3]));
+
+		main2(xSize,ySize,nCyklCount);
+	}
+//-----------	
+// RandomNets 
   public static void main(String[] argv) {
-    Date current = new Date();
-    SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
-    System.out.println(formatter.format(current));
+	
+	print_current_date();
 	
 	String className = MethodHandles.lookup().lookupClass().getSimpleName();
-    if (argv.length < 2){
-        System.out.println("Usage: " + className + " Net_Size Cykl_Count mode(?) TST(?)");
+    if (argv.length < 3){
+        System.out.println("Usage: " + className + " X_Size Y_Size Cykl_Count TST(?)");
     }
     else {
         System.out.printf("%s.java %s%n",className,Arrays.toString(argv));

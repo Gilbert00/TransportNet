@@ -94,6 +94,7 @@ class DbHandler {
 class TransportNetDB extends DbHandler {
 	//DONE: db clearing
 	//DONE: db create
+
     TransportNetDB() throws SQLException{
 	//	check_existence_db();
 		super.getInstance();
@@ -107,84 +108,140 @@ class TransportNetDB extends DbHandler {
 	static void create_tables() throws SQLException {
         //System.out.printf(" create_tables"); //TST
 		Statement statement = DbHandler.connection.createStatement();
+		
 		statement.execute("CREATE TABLE if not exists GRAPH ("+
 			"i_net INTEGER, "+
 			"x     INTEGER (2), "+
-			"gx    INTEGER, "+
-			"CONSTRAINT U_IX UNIQUE (i_net ASC,	x ASC)"+
+			"gx    INTEGER "+
+//			"gx    INTEGER, "+
+//			"CONSTRAINT U_IX UNIQUE (i_net ASC,	x ASC)"+
 			");"
 		);
+		
+		create_graph_indx();
+		
 		statement.execute("CREATE TABLE if not exists R_STAT ("+
 			"len   INTEGER PRIMARY KEY, "+
 			"count INTEGER, "+
 			"proc  NUMERIC (4, 1) "+
 			");"
 		);
+		
 		statement.execute("CREATE TABLE if not exists STATE ("+
 			"state INTEGER (2), "+
-			"i_net INTEGER "+
+			"i_net INTEGER, "+
+			"nx    INTEGER (2), "+
+			"ny    INTEGER (2)" +
 			");"
 		);	
+		
 		statement.close();
+	}
+	
+	static void create_graph_indx() throws SQLException {
+		Statement statement = DbHandler.connection.createStatement();
+		statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS U_GRAPH_IX ON GRAPH ("+
+		    "i_net ASC, "+
+			"x ASC "+
+			");"
+		);		
+		statement.close();
+	}
+	
+	static void drop_graph_indx() throws SQLException {
+		Statement statement = DbHandler.connection.createStatement();
+		statement.execute("DROP INDEX U_GRAPH_IX;");
+		statement.close();
+	}
+	
+	boolean check_net(int nx, int ny) throws SQLException {
+		Statement statement1 = DbHandler.connection.createStatement(); 
+		ResultSet resultSet1 = statement1.executeQuery("select count(*) as cnt from STATE");
+		int cnt = resultSet1.getInt("cnt");
+		if(cnt>1) return false;
+		if(cnt==0) {
+			Statement statement2 = DbHandler.connection.createStatement();
+			statement2.execute("INSERT INTO 'STATE' ('nx', 'ny') VALUES ("+nx+","+ny+");");
+			statement2.close();
+			return true;
+		}
+		if(cnt==1) {
+			Statement statement2 = DbHandler.connection.createStatement();
+			ResultSet resultSet2 = statement1.executeQuery("select nx,ny from STATE");
+			int b_nx = resultSet2.getInt("nx");
+			int b_ny = resultSet2.getInt("ny");
+			boolean result = (nx==b_nx) & (ny==b_ny);
+			resultSet2.close();
+			statement2.close();
+			if(!result)
+				System.out.printf("Others net sizes in base: %d %d !%n",b_nx,b_ny);
+			return result;
+		}
+		System.out.println("Unknown error in db.check_net !");
+        return false;
 	}
 	
 	static void get_limits_stat() throws SQLException {
 		System.out.println(" get_limits_stat"); //TST
 		
-		double avgLen=0, sumLen=0;
-		int nCount=0;
+		double avgLen=0.0, sumLen=0;
+		long nCount=0;
+		int minLen, maxLen;
 		
-		//resultSet = statement.executeQuery("select SUM(count*len)/SUM(count) as avg_len, SUM(count) as sum_cnt from r_stat");
-		Statement statement1 = DbHandler.connection.createStatement();
-		ResultSet resultSet1 = statement1.executeQuery("select SUM(count*len) as sum_len, SUM(count) as sum_cnt from r_stat");
-		while(resultSet1.next()) {
-			sumLen = resultSet1.getInt("sum_len");
-			//avgLen = resultSet1.getDouble("avg_len");
-			nCount = resultSet1.getInt("sum_cnt");
-		}
-		avgLen = 1.0*sumLen/nCount;
-		resultSet1.close();
-		statement1.close();
+        try ( //resultSet = statement.executeQuery("select SUM(count*len)/SUM(count) as avg_len, SUM(count) as sum_cnt from r_stat");
+                Statement statement1 = DbHandler.connection.createStatement(); 
+                ResultSet resultSet1 = statement1.executeQuery(
+					"select SUM(count*len) as sum_len, SUM(count) as sum_cnt, " +
+					"MIN(len) as min_len, MAX(len) as max_len  from r_stat")
+			) {
+            //while(resultSet1.next()) {
+                sumLen = resultSet1.getLong("sum_len");
+                //avgLen = resultSet1.getDouble("avg_len");
+                nCount = resultSet1.getLong("sum_cnt");
+				minLen = resultSet1.getInt("min_len");
+				maxLen = resultSet1.getInt("max_len");
+            //}
+			//System.out.printf(Locale.US,"sumLen,nCount: %,.2f %,d%n",sumLen,nCount); //TST
+            avgLen = 1.0*sumLen/nCount;
+        }
 		
 		double sigma;
 		double d=0;
 		double sumD = 0;
 		int len;
-		int count;
+		long count;
 		String proc;
-		Statement statement3 = DbHandler.connection.createStatement();
-		Statement statement2 = DbHandler.connection.createStatement();
-		ResultSet resultSet2 = statement2.executeQuery("select len, count from r_stat");
-		while(resultSet2.next()) {
-			len = resultSet2.getInt("len");
-			count = resultSet2.getInt("count");
-			d = (len - avgLen);
-			//System.out.printf("d: %.2f%n", d); //TST!!!
-			sumD += d*d*count;
-			proc = String.format(Locale.US, "%.1f",count*100.0 / nCount);
-            //System.out.printf(Locale.US,"UPDATE r_stat SET proc="+proc+" WHERE len="+len+";%n");//TST
-			statement3.execute("UPDATE r_stat SET proc="+proc+" WHERE len="+len+";");
-		}
-		resultSet2.close();
-		statement2.close();
-		statement3.close();
+        try (Statement statement3 = DbHandler.connection.createStatement(); 
+             Statement statement2 = DbHandler.connection.createStatement(); 
+             ResultSet resultSet2 = statement2.executeQuery("select len, count from r_stat")) {
+            while(resultSet2.next()) {
+                len = resultSet2.getInt("len");
+                count = resultSet2.getLong("count");
+                d = (len - avgLen);
+                //System.out.printf("d: %.2f%n", d); //TST!!!
+                sumD += d*d*count;
+                proc = String.format(Locale.US, "%.1f",count*100.0 / nCount);
+                //System.out.printf(Locale.US,"UPDATE r_stat SET proc="+proc+" WHERE len="+len+";%n");//TST
+                statement3.execute("UPDATE r_stat SET proc="+proc+" WHERE len="+len+";");
+            }
+        }
 		if (nCount<=1) sigma = d;
 		else sigma = Math.sqrt(sumD / (nCount-1.0));
 		
-		System.out.printf("N,E,sigma: %d %.2f %.2f%n", nCount,avgLen,sigma);
+		System.out.printf(Locale.US,"N,E,sigma,min,max: %,d %.2f %.2f %d %d%n", nCount,avgLen,sigma,minLen,maxLen);
 	}
 	
 	static void clear() throws SQLException {
-		//System.out.println(" clear"); //TST
-		Statement statement = DbHandler.connection.createStatement();
-		statement.execute("delete from state;");
-		statement.execute("delete from r_stat;");
-		if (! Constants.check_TST(new int[]{10})) {
-			statement.execute("delete from GRAPH;");
-		}
-		statement.execute("VACUUM");
-		//!!!commit();
-		statement.close();
+        try ( //System.out.println(" clear"); //TST
+            Statement statement = DbHandler.connection.createStatement()) {
+            //statement.execute("delete from state;");
+            if (! Constants.check_TST(new int[]{12})) {
+                statement.execute("delete from r_stat;");
+            }   if (! Constants.check_TST(new int[]{10,12})) {
+                statement.execute("delete from GRAPH;");
+            }   statement.execute("VACUUM");
+            //!!!commit();
+        }
 	}
 
 }	
@@ -213,7 +270,7 @@ class TransportNetPrepStmt{
 		int len = listR.len();
 		//System.out.printf("listR.len: %d%n", len);
 		prepStmt.setInt(1,len);
-		prepStmt.setInt(2,len);
+//		prepStmt.setInt(2,len);
 		prepStmt.execute();
 		//!!!commit();
 	}

@@ -43,7 +43,7 @@ import org.sqlite.JDBC;
         
 //-------------------
 public class MaxLimits {
-	final static String fileName = "FullNetTmp.csv"; 
+	final static String fileName = "MaxLimitsTmp.csv"; 
 	static OutToFile graphFile;
 	static int graph_count=0;
 	static int maxLimit;
@@ -63,7 +63,8 @@ public class MaxLimits {
 		
 		return db;
 	}
-
+//--------
+// MaxLimits
 	static void setVariations(TransportNetDB db, int[] source, int nX, int variationLength) {
         int srcLength = source.length;
         int permutations = (int) Math.pow(srcLength, nX);
@@ -72,6 +73,8 @@ public class MaxLimits {
         
 		try {
 	//		TransportNetDB db = new TransportNetDB();
+
+			db.drop_graph_indx();
 	
 			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
 				"INSERT INTO 'GRAPH' ('i_net', 'x', 'gx') VALUES (?,?,?);");
@@ -87,7 +90,11 @@ public class MaxLimits {
 					}
 				}
 			}
-			prepstmt.close();	
+			prepstmt.close();
+
+			System.out.println(" create_graph_indx"); //TST
+			print_current_date();
+			db.create_graph_indx();
 		}
 		catch (SQLException e) {
             e.printStackTrace();
@@ -102,7 +109,8 @@ public class MaxLimits {
 			e.printStackTrace();
 		}
 	} */
-	
+//--------
+// MaxLimits	
 	static void do_all_graphs(TransportNetDB db) {
 		final int EMPTY_NET = -1;
 		int i_net_old=EMPTY_NET;
@@ -119,10 +127,14 @@ public class MaxLimits {
 			Statement statement = db.connection.createStatement();
 			ResultSet resultSet = statement.executeQuery("select i_net,x,gx from graph order by 1,2");
 					
-			DBInsUpd prepstmt = new DBInsUpd(db,
+/* 			DBInsUpd prepstmt = new DBInsUpd(db,
 										"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1);",
 										"UPDATE 'R_STAT' SET count=count+1 WHERE len=?;"
-									);
+									); */
+			TransportNetPrepStmt prepstmt = new TransportNetPrepStmt(db, 
+				"INSERT INTO 'R_STAT' ('len', 'count') VALUES (?,1) ON CONFLICT(len) DO " +
+				"UPDATE SET count=count+1;");
+				//"UPDATE SET count=count+1 WHERE len=?;");
 			
 			while(resultSet.next()) {
 				i_net = resultSet.getInt("i_net");
@@ -156,17 +168,20 @@ public class MaxLimits {
 			e.printStackTrace();
 		}		
 	}
-	
+//--------
+// MaxLimits	
 	static void set_new_graph_file() {
 //		graph = new Graph();
 		MaxLimits.graphFile = new OutToFile(fileName);
 	}
-	
+//--------
+// MaxLimits	
 	static void close_graph_file() {
 //		graph = null;
 		MaxLimits.graphFile.close();
 	}
- 
+//--------
+// MaxLimits 
 	static void out_graph_str(int x, int gx) {
         //String s;
 		String formatInt = "%02d";
@@ -192,8 +207,10 @@ public class MaxLimits {
 		if (Constants.check_TST(new int[]{6})) System.out.printf("s: %s%n", s); //TST
 		MaxLimits.graphFile.out_str(s);
 	}
- 
-	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
+//--------
+// MaxLimits 
+//	static void do_one_graph(TransportNetDB db, DBInsUpd prepstmt) throws SQLException {
+	static void do_one_graph(TransportNetDB db, TransportNetPrepStmt prepstmt) throws SQLException {
 		//System.out.println(" do_one_graph"); //TST
 		graph = new Graph();
 		graph.input(fileName);
@@ -217,25 +234,29 @@ public class MaxLimits {
 //		MaxLimits.graph_count++;
 //		System.out.printf("graph_count: %d%n",MaxLimits.graph_count); //TST
 	}
- 
+//--------
+// MaxLimits  
 	static void print_current_date() {
 		Date current = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("d-MM-yyyy_HH:mm");
 		System.out.println(formatter.format(current));	
 	}
- 
+//--------
+// MaxLimits 
     static void main2(int nx, int ny) {
 		System.out.printf("nx,ny: %d %d%n",nx,ny); //TST
 		
 		if(nx<ny)
 			MaxLimits.maxLimit = (int)Math.pow(2,nx)-1;
 		else if(nx==ny)
-			if(nx>=4)
+			if(nx>=3)
 				MaxLimits.maxLimit = (nx-1)*(nx-1);
 			else
 				MaxLimits.maxLimit = (int)Math.pow(2,nx-1);
 		else
 			return;
+		
+		if (Constants.check_TST(new int[]{11}) ) MaxLimits.maxLimit = 0;
 		
 		System.out.printf("maxLimit: %d%n",MaxLimits.maxLimit); //TST
  
@@ -258,7 +279,8 @@ public class MaxLimits {
             Logger.getLogger(MaxLimits.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
- 
+//--------
+// MaxLimits
   private static void main1(String[] argv){
 
 	int xSize = Integer.parseInt(argv[0]);
@@ -272,7 +294,8 @@ public class MaxLimits {
 	main2(xSize,ySize);
 	
   }
-//-- 
+//--------
+// MaxLimits
   public static void main(String[] argv) {
 	  
 	print_current_date();

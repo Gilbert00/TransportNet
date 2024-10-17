@@ -28,25 +28,8 @@ import java.util.Collections;
 //import java.nio.file.Paths;
 //import java.math.BigInteger;
         
-/* import os
-import sys, getopt
-import datetime #as dt
-import queue
-import csv
-#import networkx as nx
-#G = nx.Graph()
-import numpy as np */
-
-/* #fileName="graph0.csv"
-#fileName="graph1.csv"
-#fileName="graph11.csv"
-#fileName="graph2.csv"
-#fileName="graph3.csv"
-
-#System.out.println(fileName) */
 //--------
-
-class Constants{
+/* class Constants{
     //static int EMPTY_EL=-1;
     static int TST=0; //!!! [1,2,4,5]
 	
@@ -57,7 +40,8 @@ class Constants{
 		TstBuildLimits(4),
 		TstPrintLimits(5),
 		TstBuildGraph(6),
-		OnlyStat(10);
+		OnlyStat(10),
+		OutAll(11);
 		
 		private int index;
 		
@@ -81,7 +65,7 @@ class Constants{
 	static void set_TST(int val){
 		TST = val;
 	}
-}
+} */
 
 
 //--------
