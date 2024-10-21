@@ -68,13 +68,11 @@ class Constants{
 		}
 		
 		int getTSTvalue(){ return this.index;}
-		
-		
-		
 	}
 	
 	static boolean check_TST(int[] inds) {
 		for(int i=0; i<inds.length; i++) {
+			//System.out.printf("TSTi: %d%n",inds[i]);//TST
 			if (TST==inds[i]) return true;
 		}
 		return false;
@@ -82,5 +80,6 @@ class Constants{
 	
 	static void set_TST(int val){
 		TST = val;
+		//System.out.printf("TST: %d%n",TST);//TST
 	}
 }

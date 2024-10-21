@@ -47,11 +47,13 @@ for x,ind in QX:
 	else:
 		xPrevConnections = get_sorted_prev_connections(x,QX,binMG)
 		xPrevLimitList = rLimitList.get_limits(xPrevConnections)
+		mrgPrevLimitList = xPrevLimitList.merge_limits(x)
 		
 		rLimitList.add_x_connection(x,binMG)
 		
 		xPrevLimitList.add_xy_bits(x,binMG)
-		rLimitList.add(PrevxLimitList)
+		rLimitList.add(xPrevLimitList)
+		rLimitList.add(mrgPrevLimitList)
 			#rLimitList.check_previous_Y(x,MG)
 
 rLimitList.output()
