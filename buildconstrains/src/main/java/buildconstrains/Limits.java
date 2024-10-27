@@ -29,46 +29,6 @@ import java.util.Collections;
 //import java.math.BigInteger;
         
 //--------
-/* class Constants{
-    //static int EMPTY_EL=-1;
-    static int TST=0; //!!! [1,2,4,5]
-	
-	enum TSTvalue{
-		NoTst(0),
-		TstMatrG(1),
-		TstGraph(2),
-		TstBuildLimits(4),
-		TstPrintLimits(5),
-		TstBuildGraph(6),
-		OnlyStat(10),
-		OutAll(11);
-		
-		private int index;
-		
-		private TSTvalue(int ind){
-			this.index = ind;
-		}
-		
-		int getTSTvalue(){ return this.index;}
-		
-		
-		
-	}
-	
-	static boolean check_TST(int[] inds) {
-		for(int i=0; i<inds.length; i++) {
-			if (TST==inds[i]) return true;
-		}
-		return false;
-	}
-	
-	static void set_TST(int val){
-		TST = val;
-	}
-} */
-
-
-//--------
 //--------
 class Side extends ArrayList<String> {
     Side() {
@@ -237,16 +197,16 @@ class SideSort extends ArrayList<SideSortRow> {
 
 //--------
 //--------
-class Connection {
+class VertexSetPair {
 	VertexSet x;
 	VertexSet y;
 	
-	Connection() {
+	VertexSetPair() {
 		this.x = new VertexSet();
 		this.y = new VertexSet();
 	}
 	
-	Connection(VertexSet x, VertexSet y) {
+	VertexSetPair(VertexSet x, VertexSet y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -259,8 +219,8 @@ class Connection {
             return this.y;
         }
 		
-	public static Connection EMPTY_TURTLE(){
-        return new Connection(VertexSet.EMPTY_SET(), VertexSet.EMPTY_SET());
+	public static VertexSetPair EMPTY_TURTLE(){
+        return new VertexSetPair(VertexSet.EMPTY_SET(), VertexSet.EMPTY_SET());
     }
 }
 //#--------
@@ -271,7 +231,7 @@ class VertexPairLong extends ArrayList<Long>{
 	}
 	
 	VertexPairLong(Long x, Long y) {
-		new VertexPairLong();
+		super();
 		this.add(x);
 		this.add(y);
 	}
@@ -290,7 +250,7 @@ class VertexPairStr extends ArrayList<String>{
 	}
 	
 	VertexPairStr(String x, String y) {
-		new VertexPairStr();
+		super();
 		this.add(x);
 		this.add(y);
 	}
@@ -305,11 +265,11 @@ class ListXYStr extends ArrayList<VertexPairStr> {
 //#--------
 //#--------       
 class Limits {
-	ArrayList<Connection> limits;
+	ArrayList<VertexSetPair> limits;
 	//static boolean bNeedOut;
 	
     Limits() {
-        this.limits = new ArrayList<Connection>();
+        this.limits = new ArrayList<>();
 		//this.bNeedOut = true;
 	}
      
@@ -317,7 +277,7 @@ class Limits {
 		this.bNeedOut = bNeedOut;
 	} */
 		
-    boolean append(Connection limit) {
+    boolean append(VertexSetPair limit) {
         return this.limits.add(limit);
 	}
         
@@ -325,15 +285,15 @@ class Limits {
         return this.limits.addAll(limits.get_list());
 	}
 
-    Connection delete(int krow){
+    VertexSetPair delete(int krow){
         return this.limits.remove(krow);
 	}
         
-    Connection set_row(int krow, Connection val){
+    VertexSetPair set_row(int krow, VertexSetPair val){
         return this.limits.set(krow, val);
     }
         
-    Connection get_row(int krow){
+    VertexSetPair get_row(int krow){
         return this.limits.get(krow);
 	}
      
@@ -349,7 +309,7 @@ class Limits {
         return this.limits.size();
 	}
         
-    ArrayList<Connection> get_list(){
+    ArrayList<VertexSetPair> get_list(){
         return this.limits;
 	}
         
@@ -365,7 +325,7 @@ class Limits {
     void clear_limits(){
         int lenLimits = this.len();
         for(int k=(lenLimits-1); k>-1; k--) {
-         //   Connection row = this.get_row(k);
+         //   VertexSetPair row = this.get_row(k);
             VertexSet x = this.get_x(k);
             VertexSet y = this.get_x(k);
             if( x.eq(VertexSet.EMPTY_SET()) && y.eq(VertexSet.EMPTY_SET())) this.delete(k);
@@ -385,7 +345,7 @@ class Limits {
         xPrevLimitList[(xbit, ybit)]
         """ */
     //Tst     System.out.println(' create_limits')
-		Connection connection;
+		VertexSetPair connection;
 		Limits xPrevConnections;
 		Limits xPrevLimitList;
         Limits listLimits = new Limits();
@@ -457,13 +417,13 @@ class Limits {
         """ */
         if (Constants.check_TST(new int[]{4})) System.out.println(" add_xy_bits_to_prev");//Tst
         if (Constants.check_TST(new int[]{4})) this.print_list_xy("xPrevLimitList-s");//Tst
-        Connection xy = binMG.get_x_connection(indx);
+        VertexSetPair xy = binMG.get_x_connection(indx);
         VertexSet x = xy.get_x();
         VertexSet y = xy.get_y();    
         if (Constants.check_TST(new int[]{4})) System.out.printf("indx,x,y:",indx,x.set2BinStr(),y.set2BinStr());//Tst 
         
         for(int i=0; i<this.len(); i++) {
-            Connection pair = new Connection(this.get_x(i).vor(x), this.get_y(i).vor(y));
+            VertexSetPair pair = new VertexSetPair(this.get_x(i).vor(x), this.get_y(i).vor(y));
             this.set_row(i, pair);
 		}
         
@@ -485,8 +445,8 @@ class Limits {
             if (yp.eq(VertexSet.EMPTY_SET())) continue;
             for(int kl=(kp-1); kl>-1; kl--){
                 if (this.get_y(kl).eq(yp)) {
-                    this.set_row(kp, new Connection(this.get_x(kp).vor(this.get_x(kl)), yp) ) ;
-                    this.set_row(kl, Connection.EMPTY_TURTLE()) ;
+                    this.set_row(kp, new VertexSetPair(this.get_x(kp).vor(this.get_x(kl)), yp) ) ;
+                    this.set_row(kl, VertexSetPair.EMPTY_TURTLE()) ;
 				}
 			}
 		}
@@ -517,8 +477,8 @@ class Limits {
             VertexSet yp = xPrevLimitList.get_y(kp);
             for(int kl=0; kl<lenL; kl++)
                 if (this.get_y(kl).eq(yp)) {
-                    xPrevLimitList.set_row(kp, new Connection(xPrevLimitList.get_x(kp).vor(this.get_x(kl)), yp) ); 
-                    this.set_row(kl, Connection.EMPTY_TURTLE());
+                    xPrevLimitList.set_row(kp, new VertexSetPair(xPrevLimitList.get_x(kp).vor(this.get_x(kl)), yp) ); 
+                    this.set_row(kl, VertexSetPair.EMPTY_TURTLE());
 				}
 		}
                     

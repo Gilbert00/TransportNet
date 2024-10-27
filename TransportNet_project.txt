@@ -162,10 +162,25 @@ DROP INDEX U_GRAPH_IX;
 PRAGMA foreign_keys = 1;
 
 CREATE TABLE if not exists  STATE (
-    state INTEGER (2),
-    i_net INTEGER,
-    nx    INTEGER (2),
-    ny    INTEGER (2) 
+    state      INTEGER (2),
+    i_net      INTEGER,
+    nx         INTEGER (2),
+    ny         INTEGER (2),
+    graph_file TEXT (64),
+    maxlenx    INTEGER (2),
+    maxleny    INTEGER (2) 
+);
+
+CREATE TABLE if not exists LIMITS (
+    mode          INTEGER (1),
+    x             INTEGER,
+    y             INTEGER,
+    beyond_border TEXT (16),
+    CONSTRAINT P_LIMITS PRIMARY KEY (
+        mode,
+        x,
+		y
+    )
 );
 
 select i_net,x,gx

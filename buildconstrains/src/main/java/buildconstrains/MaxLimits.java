@@ -286,7 +286,7 @@ public class MaxLimits {
 	int xSize = Integer.parseInt(argv[0]);
 	int ySize = Integer.parseInt(argv[1]);
 	
-	final String fileName = "MaxLimitsTmp.csv"; 
+	//final String fileName = "MaxLimitsTmp.csv"; 
 	
 	if (argv.length > 2) 
         Constants.set_TST(Integer.parseInt(argv[2]));

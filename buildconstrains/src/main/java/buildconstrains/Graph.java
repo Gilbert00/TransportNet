@@ -104,7 +104,7 @@ class VertexSet {
 	
     public static VertexSet int2set(long k){
 		VertexSet out = new VertexSet();
-		String s = ((Long) k).toString();
+		String s = Long.toBinaryString(k) ;
 		out.vset = new BigInteger(s);
 		out.len = s.length();
 		return out;
@@ -345,14 +345,17 @@ class MatrG extends Matr<Integer>{
 	return binY;
     }
 	
+    @Override
     void set_row(int kl, Vect<Integer> low) {
         super.set_row(kl,low);
     }
         
+    @Override
     void set_el(int ix, int iy, Integer val){
         super.set_el(ix,iy,val);
     }
       
+    @Override
 	Integer get_el(int ix, int iy){
         return super.get_el(ix,iy);
     }
@@ -400,7 +403,7 @@ class ParamsSortMatrG {
 	
 	ParamsSortMatrG() {
 		this.matrG = null;
-		this.lX = new ArrayList<String>();
+		this.lX = new ArrayList<>();
 		this.binMG = new BinMG();
 	}
 }
@@ -603,7 +606,7 @@ class BinMG extends ArrayList<BinMGRow> {
       
 //#---------- 
 //# BinMG 
-    Connection get_x_connection(int indx) {
+    VertexSetPair get_x_connection(int indx) {
 /*         """
         binMG[(bitY,kx)]
         return (xbit, ybit)
@@ -611,7 +614,7 @@ class BinMG extends ArrayList<BinMGRow> {
         VertexSet x = new VertexSet(indx);
         VertexSet y = this.get_y(indx);
         if (Constants.check_TST(new int[]{4})) System.out.printf(" indx,x,y current: %d %s %s%n", indx, x.set2BinStr(), y.set2BinStr());//#Constants.TST4; 
-        return new Connection(x, y);
+        return new VertexSetPair(x, y);
 	}
 //#---------- 
 //# BinMG
