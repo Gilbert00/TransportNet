@@ -183,6 +183,8 @@ class Graph{
         catch(IOException e){
             e.printStackTrace();
         }
+		
+		gen_sides();
                     //return graph;
      //   System.out.println()
      //   System.out.println(self.graph)
@@ -200,6 +202,8 @@ class Graph{
 			row_to_graph(row);
 			row = file.read_line();
 		}
+		
+		gen_sides();
 	}
 //--------
 // Graph
@@ -282,7 +286,7 @@ class Graph{
                 //    else
                 //        pass #Error! Dupl edje
             }
-	}
+		}
 
      //#Tst2   System.out.println('graph_dual:',graph_dual.graph)
         for (Map.Entry<String, ArrayList<String>> e: graph_dual.graph.entrySet()) {
@@ -293,6 +297,8 @@ class Graph{
 	}
             
         graph_dual.dual = true;
+		
+		graph_dual.gen_sides();
 
 //    System.out.println('graph_dual:',graph_dual.graph)
         return graph_dual;

@@ -305,7 +305,7 @@ class TransportNetDB extends DbHandler {
 	}
 	
 	void limits_to_base(Limits listR, int nMode) throws SQLException {
-		System.out.println(" limits_to_base"); //TST
+		//System.out.println(" limits_to_base"); //TST
         long ix, iy;
 		int nx=0, ny=0;
 		VertexSet x,y;		
@@ -390,8 +390,8 @@ class TransportNetDB extends DbHandler {
 	}
 	
 	void calc_limits(ArrayList<String> rsrcX, ArrayList<String> rsrcY,
-					 int maxlenX, int maxlenY) throws SQLException {
-		int mode;
+					 int maxlenX, int maxlenY, int mode) throws SQLException {
+		//int mode;
 		long ix, iy;
 		String x,y;
 		Double sx, sy;
@@ -401,20 +401,20 @@ class TransportNetDB extends DbHandler {
         
 		Statement statement1 = DbHandler.connection.createStatement(); 
         ResultSet resultSet = statement1.executeQuery(
-					"SELECT mode,x,y FROM limits ORDER BY 1,2,3;");
+					"SELECT mode,x,y FROM limits WHERE mode="+mode+" ORDER BY 1,2,3;");
 					
 		TransportNetPrepStmt prepStmt = new TransportNetPrepStmt(this,
 				"UPDATE limits SET beyond_border=? WHERE mode=? AND x=? AND y=?;");
 					
 		while(resultSet.next()) {
-			mode = resultSet.getInt("mode");
+			//mode = resultSet.getInt("mode");
 			ix = resultSet.getLong("x");
 			iy = resultSet.getLong("y");
 			x = Long.toBinaryString(ix);
 			y = Long.toBinaryString(iy);
 			
 			if(mode==1) {
-				opComp= "<=";
+				opComp = "<=";
 				sx=0.0; sy=0.0;
 				int nx = x.length();
 				for(int i=0; i<nx; i++) 
@@ -426,7 +426,7 @@ class TransportNetDB extends DbHandler {
             }
 			
 			if(mode==2) {
-				opComp= ">=";
+				opComp = ">=";
 				sx=0.0; sy=0.0;
 				int ny = y.length();
 				for(int i=0; i<ny; i++) 
@@ -443,6 +443,61 @@ class TransportNetDB extends DbHandler {
 			prepStmt.save_border(mode,ix,iy,outComp);
 		}
 		prepStmt.close();
+	}
+	
+	void out_calc_result(Graph graph, int mode) throws SQLException {
+		//int mode;
+		long ix, iy;
+		String x,y;
+		String border;
+		String opComp = "<=", opComp2 = ">=" ;
+		String[] aBorder;
+		String bX="",bY="";
+		double nbX,nbY;
+		String pn=" ";
+		
+		if (Constants.check_TST(new int[]{5})) {
+			System.out.println(" db.out_calc_result");//Tst
+			System.out.printf("graph: %s%n",graph.get_graph());
+		}
+		
+		Statement statement = DbHandler.connection.createStatement(); 
+        ResultSet resultSet = statement.executeQuery(
+					"SELECT mode,x,y,beyond_border FROM limits WHERE mode="+mode+" ORDER BY 1,2,3;");		
+		
+/* 		if(mode==1) opComp = "<=";
+		else if(mode==2) opComp = ">=";
+		else opComp = " "; */
+		
+		while(resultSet.next()) {
+			//mode = resultSet.getInt("mode");
+			ix = resultSet.getLong("x");
+			iy = resultSet.getLong("y");
+			x = Long.toBinaryString(ix);
+			y = Long.toBinaryString(iy);
+			border = resultSet.getString("beyond_border");
+			
+			if(mode==1) {
+				aBorder = border.split(opComp);
+				bY = aBorder[1];
+				bX = aBorder[0];
+			}
+			else if(mode==2) {
+				aBorder = border.split(opComp2);
+				bY = aBorder[0];
+				bX = aBorder[1];
+			}
+			nbX = Double.parseDouble(bX);
+			nbY = Double.parseDouble(bY);
+			if(nbX<=nbY) pn="+";
+			else pn="!";
+			System.out.printf("%s%s%s%s  ",pn,bX,opComp,bY);			
+			//print_border(border);
+			Limits.print_one_limit(graph, x, y);
+		}
+		
+		resultSet.close();
+        statement.close();
 	}
 }	
 //-----

@@ -119,18 +119,23 @@ public class CheckResource {
         return false;
 	}
 	
-	private static void calc_limits(TransportNetDB db) throws SQLException {
-		db.calc_limits(rsrcX,rsrcY, CheckResource.maxlenX, CheckResource.maxlenY);
+	private static void calc_limits(TransportNetDB db, int modeReal) throws SQLException {
+		db.calc_limits(rsrcX,rsrcY, CheckResource.maxlenX, CheckResource.maxlenY,modeReal);
+	}
+	
+	private static void out_calc_result(TransportNetDB db, Graph graph, int modeReal) throws SQLException {
+		db.out_calc_result(graph,modeReal);
 	}
 	
 //--------
 // CheckResource
-	static void calc_resource(TransportNetDB db, Limits listR, String fileResource) throws SQLException {
-		if(!get_resource(fileResource)) return;
+    static void calc_resource(TransportNetDB db, Limits listR, Graph graph, int modeReal) {
+	//static void calc_resource(TransportNetDB db, Limits listR, String fileResource) throws SQLException {
+		//if(!get_resource(fileResource)) return;
         try {
             if(!check_resource_len(db,rsrcX.size(),rsrcY.size())) return;
-            calc_limits(db);
-            //out_calc_result(db);
+            calc_limits(db,modeReal);
+            out_calc_result(db, graph, modeReal);
         } catch (SQLException ex) {
             Logger.getLogger(CheckResource.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -162,6 +167,8 @@ public class CheckResource {
         return;
     }
     
+	if(!get_resource(fileResource)) return;
+	
     int nMode, modeReal;
     if (argv.length > 2) 
         nMode = Integer.parseInt(argv[2]);
@@ -195,17 +202,19 @@ public class CheckResource {
 		else {
 			listR = db.read_limits(modeReal);
 			//listR.print_list_xy("listR");//TST
-			System.out.printf("mode,listR: %d %s%n", modeReal,listR.out_list());//TST
+			//System.out.printf("mode,listR: %d %s%n", modeReal,listR.out_list());//TST
 		}
 		
+		calc_resource(db, listR, graph, modeReal);
 	}
 
 	modeReal = 2;
     if (nMode==modeReal || nMode==0){
     //    dual = True
-		if(! db.limits_exists(modeReal)) {
-			Graph graph_dual = graph.create_dual();
-			System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
+		Graph graph_dual = graph.create_dual();
+		System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
+
+        if(! db.limits_exists(modeReal)) {
 			listR = Limits.build_net_limits(graph_dual,true);
 			listR.print_limits(graph_dual);
 			db.limits_to_base(listR,modeReal);
@@ -213,16 +222,17 @@ public class CheckResource {
 		else {
 			listR = db.read_limits(modeReal);
 			//listR.print_list_xy("listR");//TST
-			System.out.printf("mode,listR: %d %s%n", modeReal,listR.out_list());//TST
+			//System.out.printf("mode,listR: %d %s%n", modeReal,listR.out_list());//TST
 		}
 		
+		calc_resource(db, listR, graph_dual, modeReal);
     }
 
     if (!( nMode>=0 && nMode<=2)) {
         System.out.printf("Invalid mode ! %d%n",nMode);
 	}
-	else
-		calc_resource(db, listR, fileResource);
+/* 	else
+		calc_resource(db, listR, fileResource); */
 	
 	TransportNetDB.close();
 	//return;

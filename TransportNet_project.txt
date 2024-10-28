@@ -138,6 +138,8 @@ buildconstrains.RandomNets
 4 10
 
 ------------------------
+buildconstrains.CheckResource
+graph300.csv  rsrc00.csv  0 5
 ------------------------------------------------------------------------
 CREATE TABLE if not exists R_STAT (
     len   INTEGER PRIMARY KEY,

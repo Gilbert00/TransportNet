@@ -498,7 +498,7 @@ class Limits {
     //    """
     //Tst    System.out.println('dual:',self.dual)
 
-        graph.gen_sides();
+        //graph.gen_sides();
         int nX = graph.lX.size();
         int nY = graph.lY.size();
         if(Constants.check_TST(new int[]{1})) System.out.println("lX: "+nX+" "+graph.lX);
@@ -542,31 +542,34 @@ class Limits {
         lYsort[[val, oldInd]]
         """ */
             
+        for(int iR=0; iR<this.len(); iR++){
+			String xa = this.get_x(iR).set2BinStr();     //#
+            String yb = this.get_y(iR).set2BinStr();     //#
+			print_one_limit(graph, xa, yb);
+		}
+	}
+
+	static void print_one_limit(Graph graph, String xa, String yb){
+		if (Constants.check_TST(new int[]{5})) System.out.printf("xa,yb: %s %s%n", xa,yb);
+
         SideSort lXsort = SideSort.sort_list_by_val(graph.lX);    
         SideSort lYsort = SideSort.sort_list_by_val(graph.lY);
 		if (Constants.check_TST(new int[]{5})) System.out.printf("lXsort: %s%n", lXsort.get_list().toString());
 		if (Constants.check_TST(new int[]{5})) System.out.printf("lYsort: %s%n", lYsort.get_list().toString());
         
-        for(int iR=0; iR<this.len(); iR++){
-            String sl = new String();
-			String sr = new String();
-
-            String xa = this.get_x(iR).set2BinStr();     //#
-            String yb = this.get_y(iR).set2BinStr();     //#
- //#!!!           xa,yb = set2BinStr(self.get_row(iR))
-    		if (Constants.check_TST(new int[]{5})) System.out.printf("xa,yb: %s %s%n", xa,yb);
-	 
-            if (graph.get_dual()) {
-                sl = lXsort.side_to_limit_side("b",xa);
-                sr = lYsort.side_to_limit_side("a",yb);
-			}
-            else {
-                sl = lXsort.side_to_limit_side("a",xa);
-                sr = lYsort.side_to_limit_side("b",yb);
-			}
-            
-            System.out.printf("%s%s%s%n", sl," <= ",sr);
+		String sl;
+		String sr;
+ 
+		if (graph.get_dual()) {
+			sl = lXsort.side_to_limit_side("b",xa);
+			sr = lYsort.side_to_limit_side("a",yb);
 		}
+		else {
+			sl = lXsort.side_to_limit_side("a",xa);
+			sr = lYsort.side_to_limit_side("b",yb);
+		}
+		
+		System.out.printf("%s%s%s%n", sl," <= ",sr);
 	}
 
 //#----------
