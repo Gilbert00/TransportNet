@@ -54,3 +54,23 @@ The SQLite database TransportNet.s3db is used.
 Mathematical expectation and average deviation of the network size.
    
 The SQLite database TransportNet.s3db is used.
+
+
+# CheckResource.java #
+
+## The procedure for calculating all constraints for a specific set of resources ##
+
+### Parameters ###
+1. The name of the input file with the graph 
+2. The name of the input file with the set of resources
+3. Operating mode (optional)
+
+### Parameters description ###
+1. The structure is the same as in BuildConstrains
+2. The input file with a set of resources has a csv format without headers with a field separator character ',' and consists of 2 lines. 1 line is the value of the incoming resource for each source, 2 line is the value of the outgoing resource for each consumer. The order of the values in each row corresponds to the order of the vertices in the graph. In each resource, the symbol '.' is used to separate the integer and fractional parts.  
+3. The values are the same as in BuildConstrains
+
+### Output ###
+The set of results for calculating each constraint after substituting resource values into it + the symbolic view of each constraint.
+   
+The SQLite database is used, the name of which is formed from the input graph file name with the addition suffix '.s3db'.
