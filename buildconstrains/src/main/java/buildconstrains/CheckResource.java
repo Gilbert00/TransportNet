@@ -195,8 +195,8 @@ public class CheckResource {
     if (nMode==modeReal || nMode==0) {
     //    dual = False
 		if(! db.limits_exists(modeReal)) {
-			listR = Limits.build_net_limits(graph,true);
-			listR.print_limits(graph);
+			listR = Limits.build_net_limits(graph,false);
+			//listR.print_limits(graph);
 			db.limits_to_base(listR,modeReal);
 		}
 		else {
@@ -215,8 +215,8 @@ public class CheckResource {
 		System.out.printf("graph_dual: %s%n",graph_dual.get_graph());
 
         if(! db.limits_exists(modeReal)) {
-			listR = Limits.build_net_limits(graph_dual,true);
-			listR.print_limits(graph_dual);
+			listR = Limits.build_net_limits(graph_dual,false);
+			//listR.print_limits(graph_dual);
 			db.limits_to_base(listR,modeReal);
 		}
 		else {
