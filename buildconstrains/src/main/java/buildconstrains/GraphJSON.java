@@ -4,54 +4,17 @@ package buildconstrains;
  *
  * @author пользователь
  */
- //import java.time.LocalDate;
-//import java.time.LocalTime;
-//import java.util.Date;
-//import java.text.SimpleDateFormat;
-//import java.util.BitSet;
-//import java.util.ArrayDeque;
-//import java.util.Hashtable;
-//import java.util.Map;
-//import java.util.Arrays;
-//import java.util.ArrayList;
-//import java.util.Collections;
-//import java.util.Comparator;
-//import java.lang.Math;
-//import java.lang.Comparable;
-//import java.lang.invoke.MethodHandles;
-//import java.lang.StringTemplate;
-//import java.io.BufferedReader;
-//import java.io.FileReader;
-//import java.io.IOException;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.math.BigInteger;
-        
-/* import os
-import sys, getopt
-import datetime #as dt
-import queue
-import csv
-#import networkx as nx
-#G = nx.Graph()
-import numpy as np */
 
-/* #fileName="graph0.csv"
-#fileName="graph1.csv"
-#fileName="graph11.csv"
-#fileName="graph2.csv"
-#fileName="graph3.csv"
-
-#System.out.println(fileName) */
-//--------
-
-//import com.google.code.gson;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+//import com.google.gson.reflect.TypeToken;
+//import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.List;
+
 
 class SideJSON {
 	ArrayList<String>  node;
@@ -107,8 +70,7 @@ class GraphJSON {
 
 
 class GraphManageJSON {
-	
-	public static void main(String[] args) throws Exception {
+	void main1() throws IOException {
 /* 		String resourceJSON = """
             {"X":{"node":["1","2","3"], 
                   "value":[1.0,2.0,3.0]
@@ -145,10 +107,25 @@ class GraphManageJSON {
 		
 		//String json = gson.toJson(resourceJSON);
 		System.out.println(json);
-/* "\t{\"X\":{\"node\":[\"1\",\"2\",\"3\"],\n\t\t  \"val\":[1,2,3]}\n\t \"Y\":{\"node\":[\"1\",\"2\",\"3\",\"4\"],\n\t\t  \"val\":[1,2,3,4]}\n\t}\n" */		
+//{"X":{"node":["1","2","3"],"value":[1.0,2.0,3.0]},"Y":{"node":["1","2","3","4"],"value":[1.0,2.0,3.0,4.0]}}
 
-		GraphJSON gFrom = gson.fromJson(resourceJSON, GraphJSON.class);
-		System.out.println(gFrom);
+		//GraphJSON gFrom = gson.fromJson(resourceJSON, GraphJSON.class);
+/* 		String result = new String(
+			Files.readAllBytes(Paths.get("rsrc00.json")), 
+			StandardCharsets.UTF_8
+		); */
+		
+		String result = Files.readString(Paths.get("rsrc00.json"), StandardCharsets.UTF_8);
+		
+		GraphJSON gFrom = gson.fromJson(result, GraphJSON.class);
+		System.out.println(gFrom);	
+//{"X":{"node":["1", "2", "3"],"value":[1.0, 2.0, 3.0]},"Y":{"node":["1", "2", "3", "4"],"value":[1.0, 2.0, 3.0, 4.0]}}		
+	}
+	
+	public static void main(String[] args) throws Exception {
+	
+        GraphManageJSON cls = new GraphManageJSON();
+		cls.main1();
 		
 	}
 }
