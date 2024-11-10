@@ -130,7 +130,7 @@ public class CheckResource {
 		Gson gson = new Gson();
 		String result = Files.readString(Paths.get(fileName), StandardCharsets.UTF_8);
 		gJSON = gson.fromJson(result, GraphJSON.class);
-		//System.out.println(gFrom);			
+		System.out.println(gJSON);			
 		
 		return true;
 	}
