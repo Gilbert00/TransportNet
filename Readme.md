@@ -67,9 +67,10 @@ The SQLite database TransportNet.s3db is used.
 
 ### Parameters description ###
 1. The structure is the same as in BuildConstrains
-2.1. The input file with a set of resources has a csv format without headers with a field separator character ',' and consists of 2 lines. 1 line is the value of the incoming resource for each source, 2 line is the value of the outgoing resource for each consumer. The order of the values in each row corresponds to the order of the vertices in the graph. In each resource, the symbol '.' is used to separate the integer and fractional parts. 
-2.2. The input file with a set of resources is in json format. The key "X" describes the sources, the key "Y" describes the consumers in the original graph. These objects have the same structure of the list of "node" and "value" objects. The "node" object is an array of vertex names, the "value" object is the corresponding numeric array of resource values.
-Example:
+2.
+    1. The input file with a set of resources has a csv format without headers with a field separator character ',' and consists of 2 lines. 1 line is the value of the incoming resource for each source, 2 line is the value of the outgoing resource for each consumer. The order of the values in each row corresponds to the order of the vertices in the graph. In each resource, the symbol '.' is used to separate the integer and fractional parts. 
+    2. The input file with a set of resources is in json format. The key "X" describes the sources, the key "Y" describes the consumers in the original graph. These objects have the same structure of the list of "node" and "value" objects. The "node" object is an array of vertex names, the "value" object is the corresponding numeric array of resource values.
+    Example:
 {"X":{"node":["1", "2", "3"],"value":[1.0, 2.0, 3.0]},"Y":{"node":["0", "1", "2", "3"],"value":[1.0, 2.0, 3.0, 4.0]}} 
 3. The values are the same as in BuildConstrains
 
