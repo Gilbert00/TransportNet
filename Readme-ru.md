@@ -82,7 +82,7 @@
 # Запуск программ #
 
 ## Python программа ##
-Python программа запускалась в среде PyCharm 2024.1.4 (Community Edition)  с использованием python 3.12.
+Python программа запускалась в среде PyCharm 2024.1.4 (Community Edition) с использованием python 3.12.
 Требуемые модули:
 numpy
 pip-23.2.1.virtualenv

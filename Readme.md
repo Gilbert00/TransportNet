@@ -78,3 +78,20 @@ The SQLite database TransportNet.s3db is used.
 The set of results for calculating each constraint after substituting resource values into it + the symbolic view of each constraint.
    
 The SQLite database is used, the name of which is formed from the input graph file name with the addition suffix '.s3db'.
+
+# Programs launching #
+
+## Python program ##
+Python program was run in the PyCharm 2024.1.4 (Community Edition) environment using python 3.12.
+Required modules:
+numpy
+pip-23.2.1.virtualenv
+
+## Java programs ##
+Java programs were run in the Apache NetBeans 22 environment using Java 17.
+Required modules:
+gson-2.10.1.jar
+gson-parent-2.10.1.pom
+slf4j-api-1.7.36.jar
+slf4j-nop-1.7.36.jar
+sqlite.jdbc-3.46.0.1.jar
