@@ -103,15 +103,15 @@ Required modules:
 * Working Directory:	D:\Develop0\TestTeX\TransportNet  
 or
 * bc.cmd  
-
+---
 * Main class:	buildconstrains.FullNet
 * Arguments:	3 4
 * Working Directory:	D:\Develop0\TestTeX\TransportNet  
-
+---
 * Main class:	buildconstrains.RandomNets
 * Arguments:	4 10
 * Working Directory:	D:\Develop0\TestTeX\TransportNet  
-
+---
 * Main class:	buildconstrains.CheckResource
 * Arguments:	graph300.csv  rsrc00.json 0
 * Working Directory:	D:\Develop0\TestTeX\TransportNet  
