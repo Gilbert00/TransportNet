@@ -22,9 +22,10 @@
 
 ### Имеются 3 версии программы.
 - Первая версия на процедурах Python3 в ветке **main**.
-- Вторя версия на классах Python3 в ветке **oop**.
-- Третья версия на Java-17 в ветке **java-full**.
+- Вторая версия на классах Python3 в ветке **oop**.
+- Третья версия на Java-17 в ветке **java-full**.  
 
+Текущая версия на Python3 не выводит список ограничений в виде неравенств.
 
 # FullNet.java#
 
@@ -96,3 +97,21 @@ Java программы запускались в среде Apache NetBeans 22 
 * slf4j-nop-1.7.36.jar
 * sqlite.jdbc-3.46.0.1.jar
 
+### Примеры запусков ###
+* Main class:	buildconstrains.BuildConstrains
+* Arguments:	graph304.csv 1 0
+* Working Directory:	D:\Develop0\TestTeX\TransportNet  
+Или
+* bc.cmd
+
+* Main class:	buildconstrains.FullNet
+* Arguments:	3 4
+* Working Directory:	D:\Develop0\TestTeX\TransportNet
+
+* Main class:	buildconstrains.RandomNets
+* Arguments:	4 10
+* Working Directory:	D:\Develop0\TestTeX\TransportNet
+
+* Main class:	buildconstrains.CheckResource
+* Arguments:	graph300.csv  rsrc00.json 0
+* Working Directory:	D:\Develop0\TestTeX\TransportNet
